@@ -1,25 +1,76 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
 import { useModal } from '../components/Modal'
+import Scheduler, { type Slot } from '../components/Scheduler'
 import { mentors, money, type Mentor } from '../data'
+
+const ATHLETE_SPORT = 'Football'
+
+function BookingFlow({
+  mentor,
+  onConfirmed,
+}: {
+  mentor: Mentor
+  onConfirmed: (slot: Slot) => void
+}) {
+  const { closeModal } = useModal()
+  const [booked, setBooked] = useState<Slot | null>(null)
+
+  if (booked) {
+    return (
+      <>
+        <p>
+          Session with {mentor.name} requested for {booked.date} at {booked.time}.
+          You will be notified once the mentor confirms.
+        </p>
+        <button type="button" className="button primary" onClick={closeModal}>
+          Done
+        </button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <p>
+        {mentor.name} offers film review, recruiting advice, training advice,
+        nutrition advice, and college life Q&amp;A.
+      </p>
+      <div className="earn">
+        <span>Session price</span>
+        <strong>{money(mentor.price)}</strong>
+      </div>
+      <Scheduler
+        confirmLabel="Request Session"
+        onConfirm={(slot) => {
+          onConfirmed(slot)
+          setBooked(slot)
+        }}
+      />
+    </>
+  )
+}
 
 export default function AthleteDashboard() {
   const { showModal } = useModal()
+  const [sessions, setSessions] = useState<{ mentor: string; slot: Slot }[]>([])
+
+  const recommended = [...mentors].sort(
+    (a, b) =>
+      Number(b.sport === ATHLETE_SPORT) - Number(a.sport === ATHLETE_SPORT),
+  )
 
   const bookMentor = (m: Mentor) =>
-    showModal(`Book ${m.name}`, (
-      <>
-        <p>
-          {m.name} offers film review, recruiting advice, training advice,
-          nutrition advice, and college life Q&amp;A.
-        </p>
-        <div className="earn">
-          <span>Session price</span>
-          <strong>{money(m.price)}</strong>
-        </div>
-        <button className="button primary">Request Session</button>
-      </>
-    ))
+    showModal(
+      `Book ${m.name}`,
+      <BookingFlow
+        mentor={m}
+        onConfirmed={(slot) =>
+          setSessions((prev) => [...prev, { mentor: m.name, slot }])
+        }
+      />,
+    )
 
   const uploadHighlight = () =>
     showModal('Upload Highlight', (
@@ -79,15 +130,21 @@ export default function AthleteDashboard() {
             </article>
             <article className="panel wide">
               <div className="between">
-                <h3>Recommended Mentors</h3>
+                <div>
+                  <h3>Recommended Mentors</h3>
+                  <small>Matched to your sport and recruiting goals</small>
+                </div>
                 <Link to="/mentor">View all</Link>
               </div>
               <div id="mentors" className="grid">
-                {mentors.map((m) => (
+                {recommended.map((m) => (
                   <article className="mentor" key={m.name}>
                     <span className="miniAvatar"></span>
                     <div>
                       <strong>{m.name}</strong>
+                      {m.sport === ATHLETE_SPORT && (
+                        <span className="tag">Recommended</span>
+                      )}
                       <br />
                       <small>{m.role}</small>
                     </div>
@@ -105,14 +162,23 @@ export default function AthleteDashboard() {
                 <span>Thursday, 7:00 PM</span>
                 <small>Route release package and recruiting outreach review</small>
               </div>
+              {sessions.map((s) => (
+                <div className="session" key={`${s.mentor}-${s.slot.date}-${s.slot.time}`}>
+                  <strong>Session with {s.mentor}</strong>
+                  <span>
+                    {s.slot.date}, {s.slot.time}
+                  </span>
+                  <small>Requested - awaiting mentor confirmation</small>
+                </div>
+              ))}
             </article>
             <Link className="panel" to="/meal">
-              <span>AI Meal Plan</span>
+              <span>Meal Plan</span>
               <h3>3,050 calories</h3>
               <small>Performance goal: lean muscle</small>
             </Link>
             <Link className="panel" to="/training">
-              <span>AI Training Schedule</span>
+              <span>Training Schedule</span>
               <h3>5 day split</h3>
               <small>Speed, hands, and explosiveness</small>
             </Link>

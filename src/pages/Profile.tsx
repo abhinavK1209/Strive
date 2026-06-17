@@ -1,6 +1,40 @@
+import { useState } from 'react'
 import Nav from '../components/Nav'
+import { useModal } from '../components/Modal'
+
+function ContactFlow() {
+  const { closeModal } = useModal()
+  const [sent, setSent] = useState(false)
+
+  if (sent) {
+    return (
+      <>
+        <p>Interest sent to Avery Scott. They can now respond and schedule a call.</p>
+        <button type="button" className="button primary" onClick={closeModal}>
+          Done
+        </button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <p>
+        As a verified coach you can register interest in Avery Scott. They can
+        respond and schedule a call once interest is shown.
+      </p>
+      <button type="button" className="button primary" onClick={() => setSent(true)}>
+        Send Interest
+      </button>
+    </>
+  )
+}
 
 export default function Profile() {
+  const { showModal } = useModal()
+
+  const contactAthlete = () => showModal('Contact Avery Scott', <ContactFlow />)
+
   return (
     <>
       <Nav cta={{ to: '/coach', label: 'Coach Feed' }} />
@@ -48,7 +82,9 @@ export default function Profile() {
                 Visible to verified coaches after they save or request contact
                 with the athlete.
               </p>
-              <button className="button primary">Contact Athlete</button>
+              <button className="button primary" onClick={contactAthlete}>
+                Contact Athlete
+              </button>
             </article>
           </div>
         </section>

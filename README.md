@@ -11,18 +11,19 @@ Built with Vite, React, and TypeScript.
 - `/mentor` - college athlete mentor dashboard
 - `/coach` - coach discovery feed
 - `/profile` - athlete profile
-- `/meal` - AI meal plan tool
-- `/training` - AI training schedule tool
+- `/meal` - meal plan tool
+- `/training` - training schedule tool
 
 ## What is included
 
 - Role-based navigation across separate routes
-- High school athlete dashboard with profile completion, highlights, mentor recommendations, AI tools, and coach interest
-- College athlete mentor dashboard with pricing, availability, bookings, session types, and 15% platform commission math
+- High school athlete dashboard with profile completion, highlights, sport-matched mentor recommendations, scheduling, performance tools, and coach interest
+- College athlete mentor dashboard with pricing, an availability calendar, bookings, session types, and 15% platform commission math
 - College coach dashboard with vertical highlight feed, filters, saved recruits, and coach-initiated contact flow
 - Athlete profile page
-- AI meal plan generator prototype
-- AI training schedule generator prototype
+- Shared scheduling calendar for athletes and mentors to set up sessions
+- Meal plan generator prototype
+- Training schedule generator prototype
 - Responsive mobile and desktop layout
 
 ## Business rules represented
@@ -32,7 +33,7 @@ Built with Vite, React, and TypeScript.
 - High school athletes can book and pay mentors for sessions.
 - High school athletes cannot directly message college coaches first.
 - Coaches discover athletes through highlights and initiate contact only after showing interest.
-- Meal plans and training schedules are simulated frontend AI tools.
+- Meal plans and training schedules are simulated frontend performance tools.
 
 ## Project structure
 

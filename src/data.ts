@@ -1,6 +1,7 @@
 export interface Mentor {
   name: string
   role: string
+  sport: string
   price: number
 }
 
@@ -16,9 +17,9 @@ export interface Athlete {
 }
 
 export const mentors: Mentor[] = [
-  { name: 'Cam Porter', role: 'UNC Football | Defensive Back', price: 80 },
-  { name: 'Leah Mitchell', role: 'Duke Basketball | Guard', price: 95 },
-  { name: 'Nico Alvarez', role: 'Wake Forest Soccer | Midfielder', price: 65 },
+  { name: 'Cam Porter', role: 'UNC Football | Defensive Back', sport: 'Football', price: 80 },
+  { name: 'Leah Mitchell', role: 'Duke Basketball | Guard', sport: 'Basketball', price: 95 },
+  { name: 'Nico Alvarez', role: 'Wake Forest Soccer | Midfielder', sport: 'Soccer', price: 65 },
 ]
 
 export const athletes: Athlete[] = [

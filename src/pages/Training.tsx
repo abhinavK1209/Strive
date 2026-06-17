@@ -32,7 +32,7 @@ export default function Training() {
       <Nav cta={{ to: '/meal', label: 'Meal Tool' }} />
       <main>
         <section className="section">
-          <p className="eyebrow">AI training schedule page</p>
+          <p className="eyebrow">Training schedule tool</p>
           <h2>Build a weekly training schedule.</h2>
           <form className="form" id="trainForm" onSubmit={onSubmit}>
             <input name="sport" defaultValue="Basketball" placeholder="Sport" />

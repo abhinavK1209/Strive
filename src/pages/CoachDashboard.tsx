@@ -3,6 +3,44 @@ import Nav from '../components/Nav'
 import { useModal } from '../components/Modal'
 import { athletes, type Athlete } from '../data'
 
+function ContactFlow({ athlete }: { athlete: Athlete }) {
+  const { closeModal } = useModal()
+  const [sent, setSent] = useState(false)
+
+  if (sent) {
+    return (
+      <>
+        <p>
+          Interest sent to {athlete.name}. They can now respond and schedule a
+          call with your program.
+        </p>
+        <button type="button" className="button primary" onClick={closeModal}>
+          Done
+        </button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <p>
+        Because this is a verified coach account, you can initiate contact after
+        showing recruiting interest.
+      </p>
+      <p>
+        <strong>{athlete.school}</strong>
+        <br />
+        {athlete.stats}
+        <br />
+        Class of {athlete.year} | GPA {athlete.gpa}
+      </p>
+      <button type="button" className="button primary" onClick={() => setSent(true)}>
+        Send Interest
+      </button>
+    </>
+  )
+}
+
 export default function CoachDashboard() {
   const { showModal } = useModal()
   const [sport, setSport] = useState('all')
@@ -25,22 +63,7 @@ export default function CoachDashboard() {
     )
 
   const contactAthlete = (a: Athlete) =>
-    showModal(`Contact ${a.name}`, (
-      <>
-        <p>
-          Because this is a verified coach account, you can initiate contact
-          after showing recruiting interest.
-        </p>
-        <p>
-          <strong>{a.school}</strong>
-          <br />
-          {a.stats}
-          <br />
-          Class of {a.year} | GPA {a.gpa}
-        </p>
-        <button className="button primary">Send Interest</button>
-      </>
-    ))
+    showModal(`Contact ${a.name}`, <ContactFlow athlete={a} />)
 
   return (
     <>

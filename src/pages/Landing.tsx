@@ -12,7 +12,7 @@ export default function Landing() {
             <p className="eyebrow">Recruiting platform for serious athletes</p>
             <h1>
               Help high school athletes get recruited with mentorship, video
-              discovery, and AI performance tools.
+              discovery, and performance tools.
             </h1>
             <p>
               Strive connects student-athletes with college mentors, puts
@@ -56,7 +56,7 @@ export default function Landing() {
               <p>Coaches discover athletes through vertical highlights.</p>
             </article>
             <article className="card">
-              <b>AI Tools</b>
+              <b>Performance Tools</b>
               <p>Meal plans and training schedules for athlete goals.</p>
             </article>
           </div>

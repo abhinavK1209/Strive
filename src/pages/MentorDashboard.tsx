@@ -1,17 +1,56 @@
 import { useState } from 'react'
 import Nav from '../components/Nav'
 import { useModal } from '../components/Modal'
+import Scheduler, { type Slot } from '../components/Scheduler'
 import { money } from '../data'
+
+function AvailabilityFlow({ onOpen }: { onOpen: (slot: Slot) => void }) {
+  const { closeModal } = useModal()
+  const [opened, setOpened] = useState<Slot | null>(null)
+
+  if (opened) {
+    return (
+      <>
+        <p>
+          {opened.date} at {opened.time} is now open for athletes to book.
+        </p>
+        <button type="button" className="button primary" onClick={closeModal}>
+          Done
+        </button>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <p>Open a slot on your calendar for athletes to request sessions.</p>
+      <Scheduler
+        confirmLabel="Open Slot"
+        onConfirm={(slot) => {
+          onOpen(slot)
+          setOpened(slot)
+        }}
+      />
+    </>
+  )
+}
 
 export default function MentorDashboard() {
   const { showModal } = useModal()
   const [price, setPrice] = useState(80)
+  const [accepted, setAccepted] = useState(false)
+  const [openSlots, setOpenSlots] = useState<Slot[]>([])
   const fee = price * 0.15
 
+  const addSlot = (slot: Slot) =>
+    setOpenSlots((prev) =>
+      prev.some((s) => s.date === slot.date && s.time === slot.time)
+        ? prev
+        : [...prev, slot],
+    )
+
   const manageAvailability = () =>
-    showModal('Manage Availability', (
-      <p>This prototype simulates the workflow visually for investor and user demos.</p>
-    ))
+    showModal('Manage Availability', <AvailabilityFlow onOpen={addSlot} />)
 
   return (
     <>
@@ -65,6 +104,24 @@ export default function MentorDashboard() {
               </div>
             </article>
             <article className="panel wide">
+              <div className="between">
+                <div>
+                  <h3>Availability Calendar</h3>
+                  <small>Pick the times athletes can book</small>
+                </div>
+              </div>
+              <Scheduler confirmLabel="Open Slot" onConfirm={addSlot} />
+              {openSlots.length > 0 && (
+                <div className="chips" style={{ marginTop: 16 }}>
+                  {openSlots.map((s) => (
+                    <span key={`${s.date}-${s.time}`}>
+                      {s.date} | {s.time}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </article>
+            <article className="panel">
               <h3>Session Types</h3>
               <div className="chips">
                 <span>Recruiting Advice</span>
@@ -79,11 +136,24 @@ export default function MentorDashboard() {
               <div className="request">
                 <strong>Jordan Reed</strong>
                 <span>Film review, 45 minutes</span>
-                <button className="mini">Accept</button>
+                <button
+                  className="mini"
+                  disabled={accepted}
+                  onClick={() => setAccepted(true)}
+                >
+                  {accepted ? 'Accepted' : 'Accept'}
+                </button>
               </div>
             </article>
             <article className="panel">
               <h3>Upcoming Sessions</h3>
+              {accepted && (
+                <div className="session">
+                  <strong>Jordan Reed</strong>
+                  <span>Thursday, 7:00 PM</span>
+                  <small>Film review, 45 minutes</small>
+                </div>
+              )}
               <div className="session">
                 <strong>Avery Scott</strong>
                 <span>Sunday, 3:30 PM</span>
