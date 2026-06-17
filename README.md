@@ -2,19 +2,21 @@
 
 A responsive frontend MVP for a sports recruiting platform serving high school athletes, college athlete mentors, and college coaches.
 
-## Pages
+Built with Vite, React, and TypeScript.
 
-- `index.html` - landing page
-- `athlete.html` - high school athlete dashboard
-- `mentor.html` - college athlete mentor dashboard
-- `coach.html` - coach discovery feed
-- `profile.html` - athlete profile
-- `meal.html` - AI meal plan tool
-- `training.html` - AI training schedule tool
+## Pages (routes)
+
+- `/` - landing page
+- `/athlete` - high school athlete dashboard
+- `/mentor` - college athlete mentor dashboard
+- `/coach` - coach discovery feed
+- `/profile` - athlete profile
+- `/meal` - AI meal plan tool
+- `/training` - AI training schedule tool
 
 ## What is included
 
-- Role-based navigation across separate pages
+- Role-based navigation across separate routes
 - High school athlete dashboard with profile completion, highlights, mentor recommendations, AI tools, and coach interest
 - College athlete mentor dashboard with pricing, availability, bookings, session types, and 15% platform commission math
 - College coach dashboard with vertical highlight feed, filters, saved recruits, and coach-initiated contact flow
@@ -32,6 +34,19 @@ A responsive frontend MVP for a sports recruiting platform serving high school a
 - Coaches discover athletes through highlights and initiate contact only after showing interest.
 - Meal plans and training schedules are simulated frontend AI tools.
 
-## Run locally
+## Project structure
 
-Open `index.html` in a browser. No install step is required.
+- `src/data.ts` - typed domain data (mentors, athletes) and helpers
+- `src/components/` - shared `Nav`, `Footer`, and `Modal` (global dialog via context)
+- `src/pages/` - one component per route
+- `src/styles.css` - styling (unchanged from the original MVP)
+
+## Develop
+
+```bash
+npm install
+npm run dev       # start the dev server
+npm run build     # typecheck + production build to dist/
+npm run preview   # serve the production build
+npm run typecheck # type-check only
+```
