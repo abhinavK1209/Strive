@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react'
 import Nav from '../components/Nav'
 import { Flow, useModal } from '../components/Modal'
-import { athletes, type Athlete } from '../data'
+import { athletes, SPORT_POSITIONS, type Athlete } from '../data'
+
+// ── Contact flow modal ───────────────────────────────────────────────────────
 
 function ContactFlow({
   athlete,
@@ -43,6 +45,107 @@ function ContactFlow({
   )
 }
 
+// ── Athlete profile modal ────────────────────────────────────────────────────
+
+const HIGHLIGHT_TITLES = [
+  'Season Highlights Reel',
+  'Game Film — Conference Finals',
+  'Skills Showcase',
+  'Combine Performance',
+]
+
+function AthleteProfile({
+  athlete,
+  isSaved,
+  isContacted,
+  onSave,
+  onContact,
+}: {
+  athlete: Athlete
+  isSaved: boolean
+  isContacted: boolean
+  onSave: () => void
+  onContact: () => void
+}) {
+  return (
+    <div className="profileModal">
+      <div className="profileModalHero">
+        <div className="profileModalAvatar">
+          {athlete.name
+            .split(' ')
+            .map((n) => n[0])
+            .join('')}
+        </div>
+        <div className="profileModalMeta">
+          <p className="eyebrow profileEyebrow">
+            {athlete.sport} · {athlete.position}
+          </p>
+          <h3 className="profileModalName">{athlete.name}</h3>
+          <p className="profileModalSchool">
+            {athlete.school} · Class of {athlete.year} · {athlete.state} ·{' '}
+            {athlete.height} · {athlete.weight}
+          </p>
+        </div>
+      </div>
+
+      <div className="profileModalStats">
+        {athlete.statLabels.map((s) => (
+          <div className="profileStat" key={s.label}>
+            <strong>{s.value}</strong>
+            <span>{s.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <p className="profileModalBio">{athlete.bio}</p>
+
+      <div className="profileModalSection">
+        <h4 className="profileModalHeading">Achievements</h4>
+        <ul className="profileAchievements">
+          {athlete.achievements.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="profileModalSection">
+        <h4 className="profileModalHeading">Highlights</h4>
+        <div className="highlightGrid">
+          {HIGHLIGHT_TITLES.map((title) => (
+            <div className="highlightCard" key={title} aria-label={title}>
+              <div className="highlightThumb">
+                <div className="highlightPlay" aria-hidden="true">▶</div>
+              </div>
+              <p className="highlightTitle">{title}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="profileModalActions">
+        <button
+          type="button"
+          className="button primary"
+          aria-pressed={isSaved}
+          onClick={onSave}
+        >
+          {isSaved ? 'Saved ✓' : 'Save Athlete'}
+        </button>
+        <button
+          type="button"
+          className="button ghost"
+          disabled={isContacted}
+          onClick={onContact}
+        >
+          {isContacted ? 'Interest Sent' : 'Send Interest'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ── Main dashboard ───────────────────────────────────────────────────────────
+
 export default function CoachDashboard() {
   const { showModal } = useModal()
   const [sport, setSport] = useState('all')
@@ -55,13 +158,28 @@ export default function CoachDashboard() {
   const [contacted, setContacted] = useState<string[]>([])
 
   const uniq = (values: string[]) => [...new Set(values)]
+
   const sports = useMemo(() => uniq(athletes.map((a) => a.sport)), [])
-  const positions = useMemo(() => uniq(athletes.map((a) => a.position)), [])
-  const years = useMemo(
-    () => uniq(athletes.map((a) => a.year)).sort(),
-    [],
-  )
+
+  // Positions depend on the selected sport
+  const positions = useMemo(() => {
+    if (sport === 'all') return uniq(athletes.map((a) => a.position))
+    return SPORT_POSITIONS[sport] ?? []
+  }, [sport])
+
+  const years = useMemo(() => uniq(athletes.map((a) => a.year)).sort(), [])
   const states = useMemo(() => uniq(athletes.map((a) => a.state)).sort(), [])
+
+  const handleSportChange = (next: string) => {
+    setSport(next)
+    // Reset position if the current one doesn't belong to the new sport
+    if (next !== 'all') {
+      const valid = SPORT_POSITIONS[next] ?? []
+      if (!valid.includes(position)) setPosition('all')
+    } else {
+      setPosition('all')
+    }
+  }
 
   const list = useMemo(() => {
     const filtered = athletes.filter(
@@ -74,11 +192,12 @@ export default function CoachDashboard() {
     return [...filtered].sort((a, b) => {
       if (sortBy === 'gpa') return Number(b.gpa) - Number(a.gpa)
       if (sortBy === 'name') return a.name.localeCompare(b.name)
-      return Number(a.year) - Number(b.year) // graduating soonest first
+      return Number(a.year) - Number(b.year)
     })
   }, [sport, position, year, stateFilter, sortBy])
 
   const isSaved = (a: Athlete) => saved.some((s) => s.name === a.name)
+  const isContacted = (a: Athlete) => contacted.includes(a.name)
 
   const toggleSave = (a: Athlete) =>
     setSaved((prev) =>
@@ -106,17 +225,31 @@ export default function CoachDashboard() {
     setSelected([])
   }
 
-  const contactAthlete = (a: Athlete) =>
+  const markContacted = (a: Athlete) =>
+    setContacted((prev) => (prev.includes(a.name) ? prev : [...prev, a.name]))
+
+  const openProfile = (a: Athlete) => {
     showModal(
-      `Contact ${a.name}`,
-      <ContactFlow
+      a.name,
+      <AthleteProfile
         athlete={a}
-        onSent={() =>
-          setContacted((prev) =>
-            prev.includes(a.name) ? prev : [...prev, a.name],
+        isSaved={isSaved(a)}
+        isContacted={isContacted(a)}
+        onSave={() => toggleSave(a)}
+        onContact={() =>
+          showModal(
+            `Contact ${a.name}`,
+            <ContactFlow athlete={a} onSent={() => markContacted(a)} />,
           )
         }
       />,
+    )
+  }
+
+  const contactAthlete = (a: Athlete) =>
+    showModal(
+      `Contact ${a.name}`,
+      <ContactFlow athlete={a} onSent={() => markContacted(a)} />,
     )
 
   return (
@@ -134,7 +267,7 @@ export default function CoachDashboard() {
                 id="sport"
                 aria-label="Filter by sport"
                 value={sport}
-                onChange={(e) => setSport(e.target.value)}
+                onChange={(e) => handleSportChange(e.target.value)}
               >
                 <option value="all">All sports</option>
                 {sports.map((s) => (
@@ -228,23 +361,33 @@ export default function CoachDashboard() {
                           {a.school} | Class of {a.year} | {a.state} | GPA{' '}
                           {a.gpa}
                         </p>
+                        <p className="cardPhysical">
+                          {a.height} · {a.weight}
+                        </p>
                         <strong>{a.stats}</strong>
                         <div className="cardActions">
                           <button
                             className="button primary"
-                            aria-pressed={isSaved(a)}
-                            onClick={() => toggleSave(a)}
+                            onClick={() => openProfile(a)}
                           >
-                            {isSaved(a) ? 'Saved ✓' : 'Save Athlete'}
+                            View Profile
                           </button>
                           <button
                             className="button ghost"
-                            disabled={contacted.includes(a.name)}
-                            onClick={() => contactAthlete(a)}
+                            aria-pressed={isSaved(a)}
+                            onClick={() => toggleSave(a)}
                           >
-                            {contacted.includes(a.name)
-                              ? 'Interest Sent'
-                              : 'Contact'}
+                            {isSaved(a) ? 'Saved ✓' : 'Save'}
+                          </button>
+                        </div>
+                        <div className="cardActions" style={{ marginTop: 8 }}>
+                          <button
+                            className="button ghost"
+                            disabled={isContacted(a)}
+                            onClick={() => contactAthlete(a)}
+                            style={{ gridColumn: '1 / -1' }}
+                          >
+                            {isContacted(a) ? 'Interest Sent' : 'Send Interest'}
                           </button>
                         </div>
                       </div>
@@ -260,35 +403,35 @@ export default function CoachDashboard() {
             </div>
             <aside className="savedAside">
               <div className="panel savedPanel">
-              <h3>Saved Recruits</h3>
-              <div id="saved" aria-live="polite">
-                {saved.length ? (
-                  saved.map((a) => (
-                    <div className="request savedRow" key={a.name}>
-                      <div>
-                        <strong>{a.name}</strong>
-                        <span>
-                          {a.sport} | {a.position} | {a.gpa} GPA
-                        </span>
+                <h3>Saved Recruits</h3>
+                <div id="saved" aria-live="polite">
+                  {saved.length ? (
+                    saved.map((a) => (
+                      <div className="request savedRow" key={a.name}>
+                        <div>
+                          <strong>{a.name}</strong>
+                          <span>
+                            {a.sport} | {a.position} | {a.gpa} GPA
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className="chipRemove"
+                          aria-label={`Remove ${a.name} from saved`}
+                          onClick={() => removeSaved(a.name)}
+                        >
+                          &times;
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        className="chipRemove"
-                        aria-label={`Remove ${a.name} from saved`}
-                        onClick={() => removeSaved(a.name)}
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  ))
-                ) : (
-                  <p>No saved recruits yet.</p>
-                )}
-              </div>
-              <p className="muted">
-                Athletes cannot message coaches first. Coaches initiate contact
-                after saving or showing interest.
-              </p>
+                    ))
+                  ) : (
+                    <p>No saved recruits yet.</p>
+                  )}
+                </div>
+                <p className="muted">
+                  Athletes cannot message coaches first. Coaches initiate
+                  contact after saving or showing interest.
+                </p>
               </div>
             </aside>
           </div>
