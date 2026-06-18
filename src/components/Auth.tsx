@@ -29,8 +29,7 @@ export const ROLE_NAV: Record<Role, { to: string; label: string }[]> = {
   ],
   mentor: [{ to: '/mentor', label: 'Dashboard' }],
   coach: [
-    { to: '/coach', label: 'Recruiting Feed' },
-    { to: '/profile', label: 'Browse Profiles' },
+    { to: '/coach', label: 'Coach Hub' },
   ],
 }
 

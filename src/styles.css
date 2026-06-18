@@ -1969,3 +1969,832 @@ h3 {
     align-items: flex-start;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   COACH HUB — tabs, For You feed, compact header
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.coachSection {
+  padding-bottom: 0;
+}
+
+.coachHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.coachHeader h2 {
+  margin-bottom: 0;
+}
+
+.coachSavedBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid rgba(182, 255, 46, .4);
+  border-radius: 8px;
+  background: rgba(182, 255, 46, .1);
+  cursor: pointer;
+  color: var(--lime);
+  font-weight: 800;
+  font-size: .88rem;
+  transition: background .15s;
+}
+
+.coachSavedBadge:hover {
+  background: rgba(182, 255, 46, .18);
+}
+
+.coachSavedNum {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: .8rem;
+}
+
+/* Segmented tab control — shared by Coach and Mentor */
+.coachTabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .07);
+  width: fit-content;
+}
+
+.coachTab {
+  padding: 9px 20px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, .55);
+  cursor: pointer;
+  font-weight: 800;
+  font-size: .9rem;
+  transition: background .15s ease, color .15s ease;
+}
+
+.coachTab:hover {
+  color: rgba(255, 255, 255, .85);
+  background: rgba(255, 255, 255, .07);
+}
+
+.coachTab.active {
+  background: var(--lime);
+  color: var(--ink);
+}
+
+/* Mentor hub — tabs on light background */
+.mentorSection .coachTabs {
+  background: var(--track);
+}
+
+.mentorSection .coachTab {
+  color: var(--muted);
+}
+
+.mentorSection .coachTab:hover {
+  color: var(--ink);
+  background: rgba(12, 15, 13, .06);
+}
+
+.mentorSection .coachTab.active {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* Feed filter row */
+.feedFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.feedCount {
+  margin-left: auto;
+  font-size: .82rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, .5);
+}
+
+/* Saved count badge inline in h3 */
+.savedCount {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: .72rem;
+  font-weight: 900;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+/* ── For You snap-scroll feed ──────────────────────────────────────────────── */
+
+.forYouWrap {
+  height: calc(100vh - 270px);
+  min-height: 520px;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  /* hide scrollbar */
+  scrollbar-width: none;
+}
+
+.forYouWrap::-webkit-scrollbar {
+  display: none;
+}
+
+.forYouCard {
+  position: relative;
+  height: calc(100vh - 270px);
+  min-height: 520px;
+  scroll-snap-align: start;
+  overflow: hidden;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.forYouCard:first-child {
+  border-radius: 14px 14px 0 0;
+}
+
+.forYouCard:last-child {
+  border-radius: 0 0 14px 14px;
+}
+
+/* Dark gradient "video" background */
+.forYouBg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, #0e1a11 0%, #1c2e20 45%, #111512 100%);
+  overflow: hidden;
+}
+
+.forYouBgGrad {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 40%, rgba(182, 255, 46, .07) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 70% 20%, rgba(182, 255, 46, .04) 0%, transparent 60%),
+    linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, .75) 100%);
+}
+
+/* Decorative star shape in background */
+.forYouStarShape {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  height: 320px;
+  background: var(--lime);
+  opacity: .05;
+  clip-path: polygon(35% 0, 65% 0, 78% 30%, 100% 56%, 82% 68%, 66% 45%, 60% 100%, 40% 100%, 34% 45%, 18% 68%, 0 56%, 22% 30%);
+}
+
+/* Centered play button */
+.forYouPlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -80%);
+  z-index: 2;
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .15);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: background .15s, transform .15s;
+  border: 1.5px solid rgba(255, 255, 255, .25);
+}
+
+.forYouPlay:hover {
+  background: rgba(255, 255, 255, .25);
+  transform: translate(-50%, -80%) scale(1.06);
+}
+
+/* Progress dots */
+.forYouDots {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  gap: 5px;
+}
+
+.forYouDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .35);
+  transition: background .2s, width .2s;
+}
+
+.forYouDot.active {
+  width: 20px;
+  background: var(--lime);
+}
+
+/* Bottom overlay */
+.forYouOverlay {
+  position: relative;
+  z-index: 2;
+  padding: 28px 28px 24px;
+}
+
+.forYouMeta {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.forYouBadge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(182, 255, 46, .18);
+  border: 1px solid rgba(182, 255, 46, .35);
+  color: var(--lime);
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+
+.forYouName {
+  margin: 0 0 5px;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  color: #fff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, .5);
+  line-height: 1.05;
+}
+
+.forYouSchool {
+  margin: 0 0 6px;
+  font-size: .88rem;
+  color: rgba(255, 255, 255, .68);
+}
+
+.forYouStats {
+  margin: 0 0 16px;
+  font-size: .92rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, .9);
+  font-variant-numeric: tabular-nums;
+}
+
+.forYouActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.forYouBtn {
+  flex: 1;
+  max-width: 200px;
+}
+
+.forYouSaveBtn {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1.5px solid rgba(255, 255, 255, .3);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .1);
+  backdrop-filter: blur(6px);
+  color: rgba(255, 255, 255, .7);
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+
+.forYouSaveBtn.saved {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--ink);
+}
+
+.forYouCounter {
+  margin: 12px 0 0;
+  font-size: .76rem;
+  color: rgba(255, 255, 255, .4);
+  font-weight: 700;
+  letter-spacing: .06em;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   MENTOR HUB — overview grid, schedule, reviews, session types
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+.mentorSection {
+  background: var(--soft);
+}
+
+/* Mentor selector at top right */
+.mentorSelector {
+  display: flex;
+  gap: 8px;
+}
+
+.mentorSelectorBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+
+.mentorSelectorBtn:hover {
+  border-color: var(--ink);
+}
+
+.mentorSelectorBtn.active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: #fff;
+}
+
+.mentorSelectorAvatar {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--lime), #111512);
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.mentorSelectorBtn.active .mentorSelectorAvatar {
+  background: rgba(182, 255, 46, .25);
+  color: var(--lime);
+}
+
+.mentorSelectorName {
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+/* Overview 3-column grid */
+.mentorOverview {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.mentorProfileCard {
+  grid-row: span 1;
+}
+
+.mentorStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.mentorStat {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--soft);
+  text-align: center;
+}
+
+.mentorStat strong {
+  display: block;
+  font-size: 1.2rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.mentorStat span {
+  font-size: .72rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+
+/* Pricing panel */
+.pricingPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pricingLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.pricingLabel input[type="range"] {
+  min-height: unset;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  accent-color: var(--lime);
+  width: 100%;
+  cursor: pointer;
+}
+
+.pricingApply {
+  margin-top: 14px;
+  width: 100%;
+  font-size: .85rem;
+}
+
+/* Session types panel */
+.sessionTypesCard {
+  /* spans naturally */
+}
+
+.sessionTypesPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sessionTypesHint {
+  margin: 0;
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+.sessionTypeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.sessionTypeBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--soft);
+  cursor: pointer;
+  font-size: .84rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: left;
+  transition: border-color .15s, background .15s, color .15s;
+}
+
+.sessionTypeBtn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.sessionTypeBtn.active {
+  border-color: var(--lime);
+  background: rgba(182, 255, 46, .1);
+  color: var(--ink);
+}
+
+.sessionTypeCheck {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 4px;
+  border: 1.5px solid currentColor;
+  font-size: .72rem;
+  flex: 0 0 auto;
+  transition: background .15s;
+}
+
+.sessionTypeBtn.active .sessionTypeCheck {
+  background: var(--lime);
+  border-color: var(--lime);
+  color: var(--ink);
+}
+
+.sessionTypesActive {
+  margin: 0;
+  font-size: .8rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+/* ── Unified Schedule panel ─────────────────────────────────────────────────── */
+
+.schedulePanel {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 0;
+}
+
+.scheduleSide {
+  padding: 24px;
+}
+
+.scheduleSide:first-child {
+  border-right: 1px solid var(--line);
+}
+
+.scheduleHeading {
+  margin: 0 0 14px;
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Booking request row */
+.bookingRequest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.bookingRequestInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bookingRequestInfo strong {
+  font-size: .9rem;
+  color: var(--ink);
+}
+
+.bookingRequestInfo span {
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+.bookingAccept {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: .82rem;
+  white-space: nowrap;
+}
+
+/* Confirmed session row */
+.sessionConfirmed {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(182, 255, 46, .3);
+  border-radius: 8px;
+  background: rgba(182, 255, 46, .06);
+  margin-bottom: 8px;
+}
+
+.sessionConfirmedIcon {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--lime);
+  color: var(--ink);
+  font-size: .78rem;
+  font-weight: 900;
+}
+
+.sessionConfirmed div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sessionConfirmed strong {
+  font-size: .88rem;
+  color: var(--ink);
+}
+
+.sessionConfirmed span {
+  font-size: .78rem;
+  color: var(--muted);
+}
+
+/* Slot chip (availability calendar) */
+.slotChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+/* ── Reviews ──────────────────────────────────────────────────────────────── */
+
+.reviewsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.reviewsSummary {
+  padding: 16px;
+  border-radius: 10px;
+  background: var(--soft);
+}
+
+.reviewsAvg {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.reviewsAvgNum {
+  font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.starRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.star {
+  font-size: 1rem;
+  color: var(--line);
+}
+
+.star.filled {
+  color: #f5a623;
+}
+
+.starNum {
+  margin-left: 5px;
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.reviewsCount {
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.reviewsList {
+  display: grid;
+  gap: 14px;
+}
+
+.reviewCard {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.reviewHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.reviewAvatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #111512, var(--lime));
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 900;
+}
+
+.reviewMeta {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.reviewName {
+  font-size: .9rem;
+  color: var(--ink);
+}
+
+.reviewSport {
+  font-size: .76rem;
+  color: var(--muted);
+}
+
+.reviewComment {
+  margin: 0;
+  font-size: .88rem;
+  color: var(--ink);
+  line-height: 1.55;
+  font-style: italic;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 1000px) {
+  .mentorOverview {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .schedulePanel {
+    grid-template-columns: 1fr;
+  }
+
+  .scheduleSide:first-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 760px) {
+  .mentorOverview {
+    grid-template-columns: 1fr;
+  }
+
+  .forYouWrap,
+  .forYouCard {
+    height: calc(100vh - 220px);
+    min-height: 480px;
+  }
+
+  .coachTabs {
+    width: 100%;
+  }
+
+  .coachTab {
+    flex: 1;
+    text-align: center;
+    padding: 9px 12px;
+    font-size: .82rem;
+  }
+
+  .mentorSelector {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 560px) {
+  .sessionTypeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .forYouOverlay {
+    padding: 20px 16px 18px;
+  }
+}

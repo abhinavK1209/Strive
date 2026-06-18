@@ -1,8 +1,21 @@
 export interface Mentor {
   name: string
+  initials: string
   role: string
   sport: string
   price: number
+  bio: string
+  rating: number
+  sessions: number
+}
+
+export interface MentorReview {
+  mentorName: string
+  athlete: string
+  sport: string
+  rating: number
+  comment: string
+  date: string
 }
 
 export interface Athlete {
@@ -48,10 +61,68 @@ export const SPORT_POSITIONS: Record<string, string[]> = {
   ],
 }
 
+export const ALL_SESSION_TYPES = [
+  'Skill Development',
+  'Strength & Conditioning',
+  'Game Film Review',
+  'Mental Coaching',
+  'Recruitment Prep',
+  'Nutrition Advice',
+  'College Life Q&A',
+]
+
 export const mentors: Mentor[] = [
-  { name: 'Cam Porter', role: 'UNC Football | Defensive Back', sport: 'Football', price: 80 },
-  { name: 'Leah Mitchell', role: 'Duke Basketball | Guard', sport: 'Basketball', price: 95 },
-  { name: 'Nico Alvarez', role: 'Wake Forest Soccer | Midfielder', sport: 'Soccer', price: 65 },
+  {
+    name: 'Cam Porter',
+    initials: 'CP',
+    role: 'UNC Football | Defensive Back',
+    sport: 'Football',
+    price: 80,
+    bio: 'ACC starter, team captain, two-time All-Conference selection. Specializes in film breakdown and DB technique for high school prospects.',
+    rating: 4.9,
+    sessions: 142,
+  },
+  {
+    name: 'Leah Mitchell',
+    initials: 'LM',
+    role: 'Duke Basketball | Guard',
+    sport: 'Basketball',
+    price: 95,
+    bio: 'ACC All-Freshman team, program assist leader. Focused on guard play, recruiting navigation, and mental performance for female athletes.',
+    rating: 4.8,
+    sessions: 98,
+  },
+  {
+    name: 'Nico Alvarez',
+    initials: 'NA',
+    role: 'Wake Forest Soccer | Midfielder',
+    sport: 'Soccer',
+    price: 65,
+    bio: 'Two-year starter and technical leader for the Deacons. Runs film sessions focused on positional movement and recruiting portfolio preparation.',
+    rating: 4.7,
+    sessions: 76,
+  },
+]
+
+export const mentorDefaultSessions: Record<string, string[]> = {
+  'Cam Porter': ['Game Film Review', 'Recruitment Prep', 'Mental Coaching'],
+  'Leah Mitchell': ['Skill Development', 'Recruitment Prep', 'Mental Coaching', 'College Life Q&A'],
+  'Nico Alvarez': ['Skill Development', 'Game Film Review', 'Nutrition Advice'],
+}
+
+export const mentorReviews: MentorReview[] = [
+  // Cam Porter
+  { mentorName: 'Cam Porter', athlete: 'Darius Fontaine', sport: 'Football', rating: 5, comment: 'Cam broke down my film in a way no coach has. Completely changed how I read coverages.', date: 'May 2026' },
+  { mentorName: 'Cam Porter', athlete: 'Elijah Hargrove', sport: 'Football', rating: 5, comment: 'Best investment of my recruitment process. I had 3 offers within 6 weeks of working with him.', date: 'Apr 2026' },
+  { mentorName: 'Cam Porter', athlete: 'Priya Nair', sport: 'Football', rating: 4, comment: 'Super detailed and patient. Helped me understand what D1 coaches look for on tape.', date: 'Mar 2026' },
+  // Leah Mitchell
+  { mentorName: 'Leah Mitchell', athlete: 'Maya Collins', sport: 'Basketball', rating: 5, comment: 'Leah\'s handle drills pushed me to another level. Felt the difference after just 3 sessions.', date: 'Jun 2026' },
+  { mentorName: 'Leah Mitchell', athlete: 'Tori Vásquez', sport: 'Basketball', rating: 5, comment: 'She knows exactly what college coaches want to see on highlight tapes. Incredible mentor.', date: 'May 2026' },
+  { mentorName: 'Leah Mitchell', athlete: 'DeShawn Okafor', sport: 'Basketball', rating: 4, comment: 'Great at breaking down off-ball movement. Helped me identify holes in my game.', date: 'Apr 2026' },
+  // Nico Alvarez
+  { mentorName: 'Nico Alvarez', athlete: 'Sophia Reyes', sport: 'Soccer', rating: 5, comment: 'Nico has an eye for technical detail. My first touch has improved dramatically.', date: 'May 2026' },
+  { mentorName: 'Nico Alvarez', athlete: 'Kai Nakamura', sport: 'Soccer', rating: 5, comment: 'Amazing session. He walked me through my entire highlight film and rebuilt my cutting angles.', date: 'Apr 2026' },
+  { mentorName: 'Nico Alvarez', athlete: 'Avery Scott', sport: 'Soccer', rating: 4, comment: 'Thorough and encouraging. Great knowledge of what college programs look for in strikers.', date: 'Mar 2026' },
 ]
 
 export const athletes: Athlete[] = [
@@ -156,7 +227,6 @@ export const athletes: Athlete[] = [
     ],
     achievements: ['State blocks leader', 'Gatorade POY nominee', 'AAU national qualifier'],
   },
-
   // ── FOOTBALL ────────────────────────────────────────────────────────────────
   {
     name: 'Caleb Drummond',
@@ -228,7 +298,7 @@ export const athletes: Athlete[] = [
     gpa: '3.4',
     height: '6\'5"',
     weight: '245 lbs',
-    bio: 'Mismatch weapon with H-back versatility. Strong blocker who is equally dangerous in the passing game with contested-catch ability at the rim.',
+    bio: 'Mismatch weapon with H-back versatility. Strong blocker who is equally dangerous in the passing game with contested-catch ability.',
     stats: '58 REC | 720 Yds | 9 TD',
     statLabels: [
       { value: '58', label: 'Receptions' },
@@ -278,7 +348,6 @@ export const athletes: Athlete[] = [
     ],
     achievements: ['All-state CB', 'Under Armour All-American nominee', 'Academic excellence award'],
   },
-
   // ── SOCCER ──────────────────────────────────────────────────────────────────
   {
     name: 'Lena Brauer',
@@ -311,7 +380,7 @@ export const athletes: Athlete[] = [
     height: '6\'1"',
     weight: '185 lbs',
     bio: 'Commanding central defender who wins duels in the air and distributes calmly under pressure. Marshalled a back line that conceded just 9 goals all season.',
-    stats: '9 Goals Conceded | 14 Clearances/gm | 1 Goal',
+    stats: '9 Goals vs | 14 Clearances/gm | 87% Duel',
     statLabels: [
       { value: '9', label: 'Goals vs' },
       { value: '14', label: 'Clearances' },
