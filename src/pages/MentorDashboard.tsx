@@ -36,7 +36,7 @@ export default function MentorDashboard() {
 
   return (
     <>
-      <Nav cta={{ to: '/athlete', label: 'Athlete View' }} />
+      <Nav />
       <main>
         <section className="section soft">
           <div className="header">
@@ -48,7 +48,7 @@ export default function MentorDashboard() {
               Manage Availability
             </button>
           </div>
-          <div className="grid dash">
+          <div className="bento">
             <article className="panel profile">
               <div className="profileRow">
                 <span className="avatar">CP</span>
@@ -125,16 +125,6 @@ export default function MentorDashboard() {
               </div>
             </article>
             <article className="panel">
-              <h3>Session Types</h3>
-              <div className="chips">
-                <span>Recruiting Advice</span>
-                <span>Film Review</span>
-                <span>Training Advice</span>
-                <span>Nutrition Advice</span>
-                <span>College Life Q&amp;A</span>
-              </div>
-            </article>
-            <article className="panel">
               <h3>Booking Requests</h3>
               <div className="request">
                 <strong>Jordan Reed</strong>
@@ -161,6 +151,16 @@ export default function MentorDashboard() {
                 <strong>Avery Scott</strong>
                 <span>Sunday, 3:30 PM</span>
                 <small>Nutrition advice for tournament week</small>
+              </div>
+            </article>
+            <article className="panel">
+              <h3>Session Types</h3>
+              <div className="chips">
+                <span>Recruiting Advice</span>
+                <span>Film Review</span>
+                <span>Training Advice</span>
+                <span>Nutrition Advice</span>
+                <span>College Life Q&amp;A</span>
               </div>
             </article>
           </div>

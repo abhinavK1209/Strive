@@ -4,6 +4,7 @@
   --muted: #667069;
   --line: #dde5dd;
   --soft: #f5f7f3;
+  --track: #e8eee8;
   --white: #fff;
   --shadow: 0 18px 45px rgba(12, 15, 13, .12);
 }
@@ -129,6 +130,11 @@ nav {
   padding: clamp(56px, 8vw, 96px) clamp(18px, 5vw, 72px);
 }
 
+.hero h1 {
+  font-family: "Archivo", "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-weight: 900;
+}
+
 .hero {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(300px, .8fr);
@@ -240,10 +246,6 @@ small {
   grid-template-columns: repeat(3, 1fr);
 }
 
-.dash {
-  grid-template-columns: repeat(4, 1fr);
-}
-
 .card,
 .panel {
   padding: 22px;
@@ -293,18 +295,13 @@ small {
   overflow: hidden;
   height: 10px;
   border-radius: 999px;
-  background: #e8eee8;
+  background: var(--track);
 }
 
 .progress span {
   display: block;
   height: 100%;
   background: var(--lime);
-}
-
-.metric strong {
-  display: block;
-  font-size: 2.2rem;
 }
 
 .mini {
@@ -382,25 +379,21 @@ input {
 
 .coachLayout {
   display: grid;
-  grid-template-columns: minmax(280px, 410px) 1fr;
+  grid-template-columns: 1fr minmax(260px, 340px);
   gap: 22px;
-  align-items: start;
 }
 
 .feed {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 18px;
-  max-height: 720px;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
-  padding-right: 8px;
+  align-content: start;
 }
 
 .athleteCard {
   position: relative;
   overflow: hidden;
   min-height: 560px;
-  scroll-snap-align: start;
   border: 1px solid rgba(255, 255, 255, .16);
   border-radius: 8px;
   background: linear-gradient(145deg, #f7f9f5 0 28%, #222a25 29% 100%);
@@ -494,6 +487,49 @@ input {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
+}
+
+.plan.rest {
+  background: var(--soft);
+  border-style: dashed;
+}
+
+.planFocus {
+  font-weight: 600;
+  color: var(--ink);
+  margin: 6px 0 2px;
+}
+
+.macros {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.macro {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.macro strong {
+  display: block;
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.macro span {
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .macros {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 
@@ -958,7 +994,6 @@ dialog[open]::backdrop {
 
 @media (max-width: 1100px) {
   .four,
-  .dash,
   .output {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -990,7 +1025,6 @@ dialog[open]::backdrop {
   .hero,
   .four,
   .three,
-  .dash,
   .form,
   .output {
     grid-template-columns: 1fr;
@@ -1480,6 +1514,175 @@ dialog[open]::backdrop {
 .check.current > span:last-child {
   color: var(--ink);
   font-weight: 800;
+}
+
+/* Bento dashboard — intentional hierarchy over a uniform card grid */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.bento > * {
+  grid-column: span 2;
+}
+
+.bento > .col1 {
+  grid-column: span 1;
+}
+
+@media (max-width: 1000px) {
+  .bento {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bento > * {
+    grid-column: span 2;
+  }
+
+  .bento > .col1 {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .bento {
+    grid-template-columns: 1fr;
+  }
+
+  .bento > *,
+  .bento > .col1 {
+    grid-column: auto;
+  }
+}
+
+/* Visibility hero — the one surface the athlete checks daily */
+.heroStat {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+  border-color: transparent;
+  padding: 26px;
+  background: radial-gradient(135% 135% at 0 0, #1b231d, var(--ink) 62%);
+  color: #fff;
+}
+
+.heroStatLabel {
+  color: var(--lime);
+  font-size: .78rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.heroStatMain {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.heroStatMain strong {
+  font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-size: clamp(2.8rem, 6vw, 3.8rem);
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+.heroStatMain > span {
+  color: rgba(255, 255, 255, .82);
+  font-weight: 700;
+}
+
+.heroStatSub {
+  margin: 0;
+  color: rgba(255, 255, 255, .74);
+}
+
+.heroStatDelta {
+  color: var(--lime);
+  font-weight: 800;
+}
+
+/* Saved Recruits stays in view while scanning the feed */
+.savedPanel {
+  position: sticky;
+  top: 88px;
+  max-height: calc(100vh - 112px);
+  overflow: auto;
+}
+
+@media (max-width: 1100px) {
+  .savedPanel {
+    position: static;
+    max-height: none;
+  }
+}
+
+/* Bolder — heavier headings, lime voltage on page titles, sharper proof */
+h2,
+h3 {
+  font-weight: 800;
+}
+
+.header h2 {
+  position: relative;
+}
+
+.header h2::after {
+  content: "";
+  display: block;
+  width: 52px;
+  height: 4px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: var(--lime);
+}
+
+.profile .between strong {
+  font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-size: 1.4rem;
+  letter-spacing: -.02em;
+}
+
+.earn.net {
+  align-items: baseline;
+}
+
+.earn.net strong {
+  font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: -.02em;
+}
+
+.button.primary:hover,
+.navCta:hover {
+  box-shadow: 0 14px 26px rgba(124, 207, 0, .28);
+}
+
+/* Typeset — feed card meta replaces the per-card eyebrow scaffold */
+.cardMeta {
+  margin: 0 0 6px;
+  color: var(--lime);
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.athleteContent h3 {
+  margin-bottom: 6px;
+  font-size: 1.6rem;
+  line-height: 1.05;
+}
+
+.athleteContent strong {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tabular figures so stats and money line up */
+.heroStatMain strong,
+.stats strong,
+.earn strong,
+.profile .between strong {
+  font-variant-numeric: tabular-nums;
 }
 
 @media (prefers-reduced-motion: reduce) {

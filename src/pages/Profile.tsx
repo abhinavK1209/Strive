@@ -34,7 +34,7 @@ export default function Profile() {
 
   return (
     <>
-      <Nav cta={{ to: '/coach', label: 'Coach Feed' }} />
+      <Nav />
       <main>
         <section className="section">
           <div className="header">
@@ -42,6 +42,9 @@ export default function Profile() {
               <p className="eyebrow">Recruit profile</p>
               <h2>Avery Scott</h2>
             </div>
+            <button className="button primary" onClick={contactAthlete}>
+              Contact Athlete
+            </button>
           </div>
           <div className="grid profilePage">
             <article className="panel">
@@ -80,12 +83,9 @@ export default function Profile() {
             <article className="panel">
               <h3>Coach Interest</h3>
               <p>
-                Visible to verified coaches after they save or request contact
-                with the athlete.
+                Use Contact Athlete above to register interest. Avery can respond
+                and schedule a call once a verified coach reaches out.
               </p>
-              <button className="button primary" onClick={contactAthlete}>
-                Contact Athlete
-              </button>
             </article>
           </div>
         </section>

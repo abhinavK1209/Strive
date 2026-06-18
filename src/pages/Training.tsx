@@ -1,35 +1,29 @@
 import { useState, type FormEvent } from 'react'
 import Nav from '../components/Nav'
+import { generateTraining, type TrainInput, type TrainDay } from '../lib/plans'
 
-const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-
-function generateTraining(d: Record<string, string>): string[] {
-  return [
-    `${d.goal} lift, acceleration mechanics, and position footwork.`,
-    `${d.sport} skill block, mobility, and film study.`,
-    'Tempo conditioning, core stability, and recovery stretch.',
-    'Power session, short-area quickness, and competitive reps.',
-    'Game-speed skill work, reaction drills, and recruiting highlight clips.',
-    'Optional light recovery and nutrition reset.',
-  ]
+const defaults: TrainInput = {
+  sport: 'Basketball',
+  position: 'Point Guard',
+  level: 'Varsity starter',
+  availability: '5 days',
+  goal: 'Explosiveness',
 }
 
-const defaults = { sport: 'Basketball', goal: 'Explosiveness' }
-
 export default function Training() {
-  const [plan, setPlan] = useState<string[]>(() => generateTraining(defaults))
+  const [plan, setPlan] = useState<TrainDay[]>(() => generateTraining(defaults))
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const d = Object.fromEntries(
-      new FormData(e.currentTarget).entries(),
-    ) as Record<string, string>
+    const d = Object.fromEntries(new FormData(e.currentTarget).entries()) as unknown as TrainInput
     setPlan(generateTraining(d))
   }
 
+  const trainingCount = plan.filter((d) => !d.rest).length
+
   return (
     <>
-      <Nav cta={{ to: '/meal', label: 'Meal Tool' }} />
+      <Nav />
       <main>
         <section className="section">
           <div className="header">
@@ -39,15 +33,15 @@ export default function Training() {
             </div>
           </div>
           <form className="form" id="trainForm" onSubmit={onSubmit}>
-            <input required name="sport" aria-label="Sport" defaultValue="Basketball" placeholder="Sport" />
+            <input required name="sport" aria-label="Sport" defaultValue={defaults.sport} placeholder="Sport" />
             <input
               required
               name="position"
               aria-label="Position"
-              defaultValue="Point Guard"
+              defaultValue={defaults.position}
               placeholder="Position"
             />
-            <select name="level" aria-label="Competition level" defaultValue="Varsity starter">
+            <select name="level" aria-label="Competition level" defaultValue={defaults.level}>
               <option>Varsity starter</option>
               <option>Junior varsity</option>
               <option>Club athlete</option>
@@ -56,10 +50,10 @@ export default function Training() {
               required
               name="availability"
               aria-label="Weekly availability"
-              defaultValue="5 days"
-              placeholder="Weekly availability"
+              defaultValue={defaults.availability}
+              placeholder="Days per week (e.g. 4 days)"
             />
-            <select name="goal" aria-label="Training goal" defaultValue="Explosiveness">
+            <select name="goal" aria-label="Training goal" defaultValue={defaults.goal}>
               <option>Explosiveness</option>
               <option>Speed</option>
               <option>Strength</option>
@@ -68,11 +62,15 @@ export default function Training() {
             </select>
             <button className="button primary">Generate Schedule</button>
           </form>
+          <p className="muted" aria-live="polite">
+            {trainingCount} training {trainingCount === 1 ? 'day' : 'days'} · {7 - trainingCount} recovery
+          </p>
           <div id="trainOut" className="grid output" aria-live="polite">
-            {days.map((day, i) => (
-              <article className="plan" key={day}>
+            {plan.map(({ day, focus, detail, rest }) => (
+              <article className={rest ? 'plan rest' : 'plan'} key={day}>
                 <strong>{day}</strong>
-                <p>{plan[i]}</p>
+                <p className="planFocus">{focus}</p>
+                <p>{detail}</p>
               </article>
             ))}
           </div>

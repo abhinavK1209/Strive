@@ -13,8 +13,8 @@ export function CtaBand() {
           <Link className="button primary" to="/login">
             Get Started
           </Link>
-          <Link className="button ghost" to="/coach">
-            See the Coach Feed
+          <Link className="button ghost" to="/login">
+            Browse as a Coach
           </Link>
         </div>
       </div>

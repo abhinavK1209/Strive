@@ -41,8 +41,8 @@ export default function Login() {
         <p className="eyebrow">Choose your view</p>
         <h1>How do you want to use Strive?</h1>
         <p>
-          Pick a role to enter the matching dashboard. You can switch views any
-          time from the menu.
+          Pick a role to enter the matching dashboard. Each account only sees
+          its own pages — sign out to switch roles.
         </p>
         <div className="grid three">
           {roles.map((r) => (

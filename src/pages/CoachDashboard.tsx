@@ -121,7 +121,7 @@ export default function CoachDashboard() {
 
   return (
     <>
-      <Nav cta={{ to: '/profile', label: 'Profile View' }} />
+      <Nav />
       <main>
         <section className="section coach">
           <div className="header">
@@ -220,7 +220,7 @@ export default function CoachDashboard() {
                         Select
                       </label>
                       <div className="athleteContent">
-                        <p className="eyebrow">
+                        <p className="cardMeta">
                           {a.sport} | {a.position}
                         </p>
                         <h3>{a.name}</h3>
@@ -258,7 +258,8 @@ export default function CoachDashboard() {
                 )}
               </div>
             </div>
-            <aside className="panel">
+            <aside className="savedAside">
+              <div className="panel savedPanel">
               <h3>Saved Recruits</h3>
               <div id="saved" aria-live="polite">
                 {saved.length ? (
@@ -288,6 +289,7 @@ export default function CoachDashboard() {
                 Athletes cannot message coaches first. Coaches initiate contact
                 after saving or showing interest.
               </p>
+              </div>
             </aside>
           </div>
         </section>

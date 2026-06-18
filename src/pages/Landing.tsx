@@ -56,7 +56,7 @@ export default function Landing() {
                 vertical highlights. Your film does the pitching — and only
                 coaches can reach out first.
               </p>
-              <Link className="button primary" to="/coach">
+              <Link className="button primary" to="/login">
                 See the feed
               </Link>
             </article>
@@ -136,8 +136,8 @@ export default function Landing() {
                 Filter highlights, save recruits, and initiate contact after
                 showing interest.
               </p>
-              <Link className="button ghost" to="/coach">
-                Open the Feed
+              <Link className="button ghost" to="/login">
+                Enter as a Coach
               </Link>
             </li>
           </ol>

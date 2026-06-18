@@ -105,7 +105,7 @@ export default function AthleteDashboard() {
 
   return (
     <>
-      <Nav cta={{ to: '/coach', label: 'Coach View' }} />
+      <Nav />
       <main>
         <section className="section">
           <div className="header">
@@ -117,7 +117,7 @@ export default function AthleteDashboard() {
               Upload Highlight
             </button>
           </div>
-          <div className="grid dash">
+          <div className="bento">
             <article className="panel profile">
               <div className="profileRow">
                 <span className="avatar">JR</span>
@@ -135,6 +135,17 @@ export default function AthleteDashboard() {
                 <span style={{ width: '86%' }}></span>
               </div>
             </article>
+            <article className="panel heroStat">
+              <span className="heroStatLabel">You're getting noticed</span>
+              <div className="heroStatMain">
+                <strong>124</strong>
+                <span>coach views</span>
+              </div>
+              <p className="heroStatSub">
+                <span className="heroStatDelta">+11 this week</span> · 9 coaches
+                saved your profile (NC, VA &amp; SC programs)
+              </p>
+            </article>
             <article className="panel">
               <h3>Recruiting Status</h3>
               <ul className="checklist">
@@ -151,23 +162,12 @@ export default function AthleteDashboard() {
                 ))}
               </ul>
             </article>
-            <article className="panel metric">
-              <span>Coach Views</span>
-              <strong>124</strong>
-              <p>11 new views this week</p>
-            </article>
-            <article className="panel metric">
-              <span>Saved by Coaches</span>
-              <strong>9</strong>
-              <p>NC, VA, and SC programs</p>
-            </article>
             <article className="panel wide">
               <div className="between">
                 <div>
                   <h3>Recommended Mentors</h3>
                   <small>Matched to your sport and recruiting goals</small>
                 </div>
-                <Link to="/mentor">View all</Link>
               </div>
               <div id="mentors" className="grid">
                 {recommended.map((m) => (
@@ -212,12 +212,12 @@ export default function AthleteDashboard() {
                 </div>
               ))}
             </article>
-            <Link className="panel" to="/meal">
+            <Link className="panel col1" to="/meal">
               <span>Meal Plan</span>
               <h3>3,050 calories</h3>
               <small>Performance goal: lean muscle</small>
             </Link>
-            <Link className="panel" to="/training">
+            <Link className="panel col1" to="/training">
               <span>Training Schedule</span>
               <h3>5 day split</h3>
               <small>Speed, hands, and explosiveness</small>
