@@ -1710,3 +1710,262 @@ h3 {
     animation: none;
   }
 }
+
+/* ── Athlete profile modal ─────────────────────────────────────────────────── */
+
+.profileModal {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profileModalHero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profileModalAvatar {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--lime), #111512);
+  color: #fff;
+  font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+
+.profileEyebrow {
+  margin: 0 0 4px;
+}
+
+.profileModalName {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+}
+
+.profileModalSchool {
+  margin: 0;
+  font-size: .88rem;
+}
+
+.profileModalStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.profileStat {
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--soft);
+  text-align: center;
+}
+
+.profileStat strong {
+  display: block;
+  font-size: 1.3rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.profileStat span {
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.profileModalBio {
+  margin: 0;
+  font-size: .95rem;
+  color: var(--ink);
+  line-height: 1.6;
+}
+
+.profileModalSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.profileModalHeading {
+  margin: 0;
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.profileAchievements {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--ink);
+  font-size: .9rem;
+}
+
+.profileModalActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+/* ── Highlight video cards ─────────────────────────────────────────────────── */
+
+.highlightGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.highlightCard {
+  cursor: default;
+}
+
+.highlightThumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1a221c 0%, #2d3d30 60%, #111512 100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.highlightThumb::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 70%, rgba(182, 255, 46, .08) 0%, transparent 70%),
+    linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, .45) 100%);
+}
+
+.highlightPlay {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 1.1rem;
+  border: 1.5px solid rgba(255, 255, 255, .3);
+}
+
+.highlightTitle {
+  margin: 7px 0 0;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* ── Recruit Profiles page grid ─────────────────────────────────────────────── */
+
+.profileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.profileCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: left;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+
+.profileCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(12, 15, 13, .1);
+  border-color: var(--lime);
+}
+
+.profileCardAvatar {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #111512, var(--lime));
+  color: #fff;
+  font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+.profileCardBody {
+  min-width: 0;
+}
+
+/* ── Profile detail view (full-page layout inside /profile) ─────────────────── */
+
+.profileDetailWrap {
+  max-width: 900px;
+}
+
+.profileDetailHero {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.profileDetailAvatar {
+  display: grid;
+  width: 80px;
+  height: 80px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--lime), #111512);
+  color: #fff;
+  font-family: "Bricolage Grotesque", "Hanken Grotesk", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+/* Physical info line on athlete cards */
+.cardPhysical {
+  margin: 2px 0 6px;
+  font-size: .82rem;
+  color: rgba(255, 255, 255, .65);
+}
+
+@media (max-width: 640px) {
+  .profileModalStats,
+  .highlightGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .profileModalActions {
+    grid-template-columns: 1fr;
+  }
+
+  .profileDetailHero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
