@@ -46,8 +46,12 @@ export default function Meal() {
       <Nav cta={{ to: '/training', label: 'Training Tool' }} />
       <main>
         <section className="section soft">
-          <p className="eyebrow">Meal plan tool</p>
-          <h2>Generate a sample performance meal plan.</h2>
+          <div className="header">
+            <div>
+              <p className="eyebrow">Nutrition</p>
+              <h2>Performance meal plan</h2>
+            </div>
+          </div>
           <form className="form" id="mealForm" onSubmit={onSubmit}>
             <input required name="sport" aria-label="Sport" defaultValue="Football" placeholder="Sport" />
             <input required name="age" aria-label="Age" defaultValue="17" placeholder="Age" />

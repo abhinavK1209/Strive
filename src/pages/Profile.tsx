@@ -37,12 +37,16 @@ export default function Profile() {
       <Nav cta={{ to: '/coach', label: 'Coach Feed' }} />
       <main>
         <section className="section">
-          <p className="eyebrow">Athlete profile page</p>
-          <h2>Complete recruit profile</h2>
+          <div className="header">
+            <div>
+              <p className="eyebrow">Recruit profile</p>
+              <h2>Avery Scott</h2>
+            </div>
+          </div>
           <div className="grid profilePage">
             <article className="panel">
               <div className="heroImg"></div>
-              <h3>Avery Scott</h3>
+              <h3>Snapshot</h3>
               <p>
                 Soccer | Forward | Class of 2026 | Durham Academy | Durham, NC
               </p>

@@ -32,8 +32,12 @@ export default function Training() {
       <Nav cta={{ to: '/meal', label: 'Meal Tool' }} />
       <main>
         <section className="section">
-          <p className="eyebrow">Training schedule tool</p>
-          <h2>Build a weekly training schedule.</h2>
+          <div className="header">
+            <div>
+              <p className="eyebrow">Training</p>
+              <h2>Weekly training schedule</h2>
+            </div>
+          </div>
           <form className="form" id="trainForm" onSubmit={onSubmit}>
             <input required name="sport" aria-label="Sport" defaultValue="Basketball" placeholder="Sport" />
             <input

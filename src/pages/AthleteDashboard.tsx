@@ -7,6 +7,22 @@ import { mentors, money, type Mentor } from '../data'
 
 const ATHLETE_SPORT = 'Football'
 
+type StepState = 'done' | 'current' | 'pending'
+
+const RECRUITING_STEPS: { label: string; state: StepState }[] = [
+  { label: 'Profile verified', state: 'done' },
+  { label: 'Three highlights uploaded', state: 'done' },
+  { label: 'Coach interest received', state: 'done' },
+  { label: 'Schedule campus calls', state: 'current' },
+  { label: 'Commit to a program', state: 'pending' },
+]
+
+const STEP_STATUS: Record<StepState, string> = {
+  done: 'Completed',
+  current: 'Up next',
+  pending: 'Not started',
+}
+
 function BookingFlow({
   mentor,
   onConfirmed,
@@ -18,10 +34,14 @@ function BookingFlow({
     <Flow>
       {({ complete }) => (
         <>
-          <p>
-            {mentor.name} offers film review, recruiting advice, training advice,
-            nutrition advice, and college life Q&amp;A.
-          </p>
+          <p>{mentor.name} offers these session types:</p>
+          <div className="chips">
+            <span>Film Review</span>
+            <span>Recruiting Advice</span>
+            <span>Training Advice</span>
+            <span>Nutrition Advice</span>
+            <span>College Life Q&amp;A</span>
+          </div>
           <div className="earn">
             <span>Session price</span>
             <strong>{money(mentor.price)}</strong>
@@ -75,7 +95,12 @@ export default function AthleteDashboard() {
 
   const uploadHighlight = () =>
     showModal('Upload Highlight', (
-      <p>This prototype simulates the workflow visually for investor and user demos.</p>
+      <>
+        <p>Add a clip to your highlight reel so coaches can see you play.</p>
+        <p className="muted">
+          Paste a link from Hudl or YouTube, or upload an MP4 up to 500&nbsp;MB.
+        </p>
+      </>
     ))
 
   return (
@@ -112,12 +137,19 @@ export default function AthleteDashboard() {
             </article>
             <article className="panel">
               <h3>Recruiting Status</h3>
-              <ol>
-                <li>Profile verified</li>
-                <li>Three highlights uploaded</li>
-                <li>Coach interest received</li>
-                <li>Schedule campus calls</li>
-              </ol>
+              <ul className="checklist">
+                {RECRUITING_STEPS.map((s) => (
+                  <li className={`check ${s.state}`} key={s.label}>
+                    <span className="checkMark" aria-hidden="true">
+                      {s.state === 'done' ? '✓' : ''}
+                    </span>
+                    <span>
+                      <span className="srOnly">{STEP_STATUS[s.state]}: </span>
+                      {s.label}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </article>
             <article className="panel metric">
               <span>Coach Views</span>

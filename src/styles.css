@@ -1421,6 +1421,67 @@ dialog[open]::backdrop {
   overflow-wrap: break-word;
 }
 
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+/* Recruiting status — stateful checklist */
+.checklist {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.check {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.checkMark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 900;
+}
+
+.check.done .checkMark {
+  border-color: transparent;
+  background: var(--lime);
+  color: var(--ink);
+}
+
+.check.current .checkMark {
+  border: 2px solid var(--ink);
+  background: #fff;
+}
+
+.check.done > span:last-child {
+  color: var(--muted);
+}
+
+.check.current > span:last-child {
+  color: var(--ink);
+  font-weight: 800;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

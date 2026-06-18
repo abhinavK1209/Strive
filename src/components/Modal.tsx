@@ -75,7 +75,6 @@ export function ModalProvider({ children }: { children: ReactNode }) {
         <div id="modalBody">
           {content && (
             <>
-              <p className="eyebrow">Prototype flow</p>
               <h2 id="modalTitle">{content.title}</h2>
               {content.body}
             </>

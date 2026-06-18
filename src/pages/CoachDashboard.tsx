@@ -47,19 +47,36 @@ export default function CoachDashboard() {
   const { showModal } = useModal()
   const [sport, setSport] = useState('all')
   const [position, setPosition] = useState('all')
+  const [year, setYear] = useState('all')
+  const [stateFilter, setStateFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('year')
   const [saved, setSaved] = useState<Athlete[]>([])
   const [selected, setSelected] = useState<string[]>([])
   const [contacted, setContacted] = useState<string[]>([])
 
-  const list = useMemo(
-    () =>
-      athletes.filter(
-        (a) =>
-          (sport === 'all' || a.sport === sport) &&
-          (position === 'all' || a.position === position),
-      ),
-    [sport, position],
+  const uniq = (values: string[]) => [...new Set(values)]
+  const sports = useMemo(() => uniq(athletes.map((a) => a.sport)), [])
+  const positions = useMemo(() => uniq(athletes.map((a) => a.position)), [])
+  const years = useMemo(
+    () => uniq(athletes.map((a) => a.year)).sort(),
+    [],
   )
+  const states = useMemo(() => uniq(athletes.map((a) => a.state)).sort(), [])
+
+  const list = useMemo(() => {
+    const filtered = athletes.filter(
+      (a) =>
+        (sport === 'all' || a.sport === sport) &&
+        (position === 'all' || a.position === position) &&
+        (year === 'all' || a.year === year) &&
+        (stateFilter === 'all' || a.state === stateFilter),
+    )
+    return [...filtered].sort((a, b) => {
+      if (sortBy === 'gpa') return Number(b.gpa) - Number(a.gpa)
+      if (sortBy === 'name') return a.name.localeCompare(b.name)
+      return Number(a.year) - Number(b.year) // graduating soonest first
+    })
+  }, [sport, position, year, stateFilter, sortBy])
 
   const isSaved = (a: Athlete) => saved.some((s) => s.name === a.name)
 
@@ -120,9 +137,9 @@ export default function CoachDashboard() {
                 onChange={(e) => setSport(e.target.value)}
               >
                 <option value="all">All sports</option>
-                <option>Football</option>
-                <option>Basketball</option>
-                <option>Soccer</option>
+                {sports.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
               </select>
               <select
                 id="position"
@@ -131,9 +148,43 @@ export default function CoachDashboard() {
                 onChange={(e) => setPosition(e.target.value)}
               >
                 <option value="all">All positions</option>
-                <option>Wide Receiver</option>
-                <option>Point Guard</option>
-                <option>Forward</option>
+                {positions.map((p) => (
+                  <option key={p}>{p}</option>
+                ))}
+              </select>
+              <select
+                id="year"
+                aria-label="Filter by class year"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+              >
+                <option value="all">All class years</option>
+                {years.map((y) => (
+                  <option key={y}>{y}</option>
+                ))}
+              </select>
+              {states.length > 1 && (
+                <select
+                  id="state"
+                  aria-label="Filter by state"
+                  value={stateFilter}
+                  onChange={(e) => setStateFilter(e.target.value)}
+                >
+                  <option value="all">All states</option>
+                  {states.map((s) => (
+                    <option key={s}>{s}</option>
+                  ))}
+                </select>
+              )}
+              <select
+                id="sort"
+                aria-label="Sort athletes"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="year">Graduating soonest</option>
+                <option value="gpa">Top GPA</option>
+                <option value="name">Name (A–Z)</option>
               </select>
             </div>
           </div>
