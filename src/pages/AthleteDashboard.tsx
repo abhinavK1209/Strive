@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Nav from '../components/Nav'
-import { useModal } from '../components/Modal'
+import { Flow, useModal } from '../components/Modal'
 import Scheduler, { type Slot } from '../components/Scheduler'
 import { mentors, money, type Mentor } from '../data'
 
@@ -14,41 +14,30 @@ function BookingFlow({
   mentor: Mentor
   onConfirmed: (slot: Slot) => void
 }) {
-  const { closeModal } = useModal()
-  const [booked, setBooked] = useState<Slot | null>(null)
-
-  if (booked) {
-    return (
-      <>
-        <p>
-          Session with {mentor.name} requested for {booked.date} at {booked.time}.
-          You will be notified once the mentor confirms.
-        </p>
-        <button type="button" className="button primary" onClick={closeModal}>
-          Done
-        </button>
-      </>
-    )
-  }
-
   return (
-    <>
-      <p>
-        {mentor.name} offers film review, recruiting advice, training advice,
-        nutrition advice, and college life Q&amp;A.
-      </p>
-      <div className="earn">
-        <span>Session price</span>
-        <strong>{money(mentor.price)}</strong>
-      </div>
-      <Scheduler
-        confirmLabel="Request Session"
-        onConfirm={(slot) => {
-          onConfirmed(slot)
-          setBooked(slot)
-        }}
-      />
-    </>
+    <Flow>
+      {({ complete }) => (
+        <>
+          <p>
+            {mentor.name} offers film review, recruiting advice, training advice,
+            nutrition advice, and college life Q&amp;A.
+          </p>
+          <div className="earn">
+            <span>Session price</span>
+            <strong>{money(mentor.price)}</strong>
+          </div>
+          <Scheduler
+            confirmLabel="Request Session"
+            onConfirm={(slot) => {
+              onConfirmed(slot)
+              complete(
+                `Session with ${mentor.name} requested for ${slot.date} at ${slot.time}. You will be notified once the mentor confirms.`,
+              )
+            }}
+          />
+        </>
+      )}
+    </Flow>
   )
 }
 
@@ -155,7 +144,7 @@ export default function AthleteDashboard() {
                 ))}
               </div>
             </article>
-            <article className="panel">
+            <article className="panel" aria-live="polite">
               <h3>Upcoming Sessions</h3>
               <div className="session">
                 <strong>Film Review with Cam Porter</strong>

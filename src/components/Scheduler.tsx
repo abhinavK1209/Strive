@@ -31,15 +31,18 @@ export default function Scheduler({ confirmLabel, onConfirm }: SchedulerProps) {
 
   const [date, setDate] = useState('')
   const [time, setTime] = useState('')
+  const ready = Boolean(date && time)
 
   return (
     <div className="scheduler">
-      <div className="calDays">
+      <div className="calDays" role="group" aria-label="Choose a day">
         {days.map((d) => (
           <button
             type="button"
             key={d.key}
             className={date === d.label ? 'calDay active' : 'calDay'}
+            aria-pressed={date === d.label}
+            aria-label={`${d.weekday} the ${d.day}`}
             onClick={() => setDate(d.label)}
           >
             <span>{d.weekday}</span>
@@ -47,22 +50,26 @@ export default function Scheduler({ confirmLabel, onConfirm }: SchedulerProps) {
           </button>
         ))}
       </div>
-      <div className="slots">
+      <div className="slots" role="group" aria-label="Choose a time">
         {TIMES.map((t) => (
           <button
             type="button"
             key={t}
             className={time === t ? 'slot active' : 'slot'}
+            aria-pressed={time === t}
             onClick={() => setTime(t)}
           >
             {t}
           </button>
         ))}
       </div>
+      <p className="schedulerHint" aria-live="polite">
+        {ready ? `Selected ${date} at ${time}` : 'Pick a day and a time to continue.'}
+      </p>
       <button
         type="button"
         className="button primary"
-        disabled={!date || !time}
+        disabled={!ready}
         onClick={() => onConfirm({ date, time })}
       >
         {confirmLabel}

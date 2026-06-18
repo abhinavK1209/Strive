@@ -1,37 +1,25 @@
 import { useState } from 'react'
 import Nav from '../components/Nav'
-import { useModal } from '../components/Modal'
+import { Flow, useModal } from '../components/Modal'
 import Scheduler, { type Slot } from '../components/Scheduler'
 import { money } from '../data'
 
 function AvailabilityFlow({ onOpen }: { onOpen: (slot: Slot) => void }) {
-  const { closeModal } = useModal()
-  const [opened, setOpened] = useState<Slot | null>(null)
-
-  if (opened) {
-    return (
-      <>
-        <p>
-          {opened.date} at {opened.time} is now open for athletes to book.
-        </p>
-        <button type="button" className="button primary" onClick={closeModal}>
-          Done
-        </button>
-      </>
-    )
-  }
-
   return (
-    <>
-      <p>Open a slot on your calendar for athletes to request sessions.</p>
-      <Scheduler
-        confirmLabel="Open Slot"
-        onConfirm={(slot) => {
-          onOpen(slot)
-          setOpened(slot)
-        }}
-      />
-    </>
+    <Flow>
+      {({ complete }) => (
+        <>
+          <p>Open a slot on your calendar for athletes to request sessions.</p>
+          <Scheduler
+            confirmLabel="Open Slot"
+            onConfirm={(slot) => {
+              onOpen(slot)
+              complete(`${slot.date} at ${slot.time} is now open for athletes to book.`)
+            }}
+          />
+        </>
+      )}
+    </Flow>
   )
 }
 
@@ -87,6 +75,7 @@ export default function MentorDashboard() {
                   min="25"
                   max="150"
                   value={price}
+                  aria-valuetext={money(price)}
                   onChange={(e) => setPrice(Number(e.target.value))}
                 />
               </label>
@@ -111,15 +100,17 @@ export default function MentorDashboard() {
                 </div>
               </div>
               <Scheduler confirmLabel="Open Slot" onConfirm={addSlot} />
-              {openSlots.length > 0 && (
-                <div className="chips" style={{ marginTop: 16 }}>
-                  {openSlots.map((s) => (
+              <div className="chips" style={{ marginTop: 16 }} aria-live="polite">
+                {openSlots.length ? (
+                  openSlots.map((s) => (
                     <span key={`${s.date}-${s.time}`}>
                       {s.date} | {s.time}
                     </span>
-                  ))}
-                </div>
-              )}
+                  ))
+                ) : (
+                  <small>No open slots yet. Pick a day and time above.</small>
+                )}
+              </div>
             </article>
             <article className="panel">
               <h3>Session Types</h3>

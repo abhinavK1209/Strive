@@ -1,32 +1,29 @@
-import { useState } from 'react'
 import Nav from '../components/Nav'
-import { useModal } from '../components/Modal'
+import { Flow, useModal } from '../components/Modal'
 
 function ContactFlow() {
-  const { closeModal } = useModal()
-  const [sent, setSent] = useState(false)
-
-  if (sent) {
-    return (
-      <>
-        <p>Interest sent to Avery Scott. They can now respond and schedule a call.</p>
-        <button type="button" className="button primary" onClick={closeModal}>
-          Done
-        </button>
-      </>
-    )
-  }
-
   return (
-    <>
-      <p>
-        As a verified coach you can register interest in Avery Scott. They can
-        respond and schedule a call once interest is shown.
-      </p>
-      <button type="button" className="button primary" onClick={() => setSent(true)}>
-        Send Interest
-      </button>
-    </>
+    <Flow>
+      {({ complete }) => (
+        <>
+          <p>
+            As a verified coach you can register interest in Avery Scott. They
+            can respond and schedule a call once interest is shown.
+          </p>
+          <button
+            type="button"
+            className="button primary"
+            onClick={() =>
+              complete(
+                'Interest sent to Avery Scott. They can now respond and schedule a call.',
+              )
+            }
+          >
+            Send Interest
+          </button>
+        </>
+      )}
+    </Flow>
   )
 }
 
