@@ -56,10 +56,22 @@ export default function AthleteDashboard() {
       <BookingFlow
         mentor={m}
         onConfirmed={(slot) =>
-          setSessions((prev) => [...prev, { mentor: m.name, slot }])
+          setSessions((prev) =>
+            prev.some(
+              (s) =>
+                s.mentor === m.name &&
+                s.slot.date === slot.date &&
+                s.slot.time === slot.time,
+            )
+              ? prev
+              : [...prev, { mentor: m.name, slot }],
+          )
         }
       />,
     )
+
+  const cancelSession = (index: number) =>
+    setSessions((prev) => prev.filter((_, i) => i !== index))
 
   const uploadHighlight = () =>
     showModal('Upload Highlight', (
@@ -151,13 +163,20 @@ export default function AthleteDashboard() {
                 <span>Thursday, 7:00 PM</span>
                 <small>Route release package and recruiting outreach review</small>
               </div>
-              {sessions.map((s) => (
+              {sessions.map((s, i) => (
                 <div className="session" key={`${s.mentor}-${s.slot.date}-${s.slot.time}`}>
                   <strong>Session with {s.mentor}</strong>
                   <span>
                     {s.slot.date}, {s.slot.time}
                   </span>
-                  <small>Requested - awaiting mentor confirmation</small>
+                  <small>Requested — awaiting mentor confirmation</small>
+                  <button
+                    type="button"
+                    className="textBtn"
+                    onClick={() => cancelSession(i)}
+                  >
+                    Cancel request
+                  </button>
                 </div>
               ))}
             </article>

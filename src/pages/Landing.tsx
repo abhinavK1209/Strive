@@ -12,15 +12,11 @@ export default function Landing() {
       <main>
         <section className="hero">
           <div>
-            <p className="eyebrow">Recruiting platform for serious athletes</p>
-            <h1>
-              Get recruited with mentorship, video discovery, and performance
-              tools.
-            </h1>
+            <p className="eyebrow">Recruiting, built for serious athletes</p>
+            <h1>Get in front of the coaches recruiting your position.</h1>
             <p>
-              Strive connects student-athletes with college mentors, puts
-              verified coaches inside a sport-specific highlight feed, and gives
-              athletes practical meal and training plans built for their goals.
+              Turn your highlights and stats into a profile coaches can find —
+              and train with college athletes who've already made the jump.
             </p>
             <div className="actions">
               <Link className="button primary" to="/login">

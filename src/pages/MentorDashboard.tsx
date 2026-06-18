@@ -1,44 +1,38 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Nav from '../components/Nav'
-import { Flow, useModal } from '../components/Modal'
 import Scheduler, { type Slot } from '../components/Scheduler'
 import { money } from '../data'
 
-function AvailabilityFlow({ onOpen }: { onOpen: (slot: Slot) => void }) {
-  return (
-    <Flow>
-      {({ complete }) => (
-        <>
-          <p>Open a slot on your calendar for athletes to request sessions.</p>
-          <Scheduler
-            confirmLabel="Open Slot"
-            onConfirm={(slot) => {
-              onOpen(slot)
-              complete(`${slot.date} at ${slot.time} is now open for athletes to book.`)
-            }}
-          />
-        </>
-      )}
-    </Flow>
-  )
-}
-
 export default function MentorDashboard() {
-  const { showModal } = useModal()
   const [price, setPrice] = useState(80)
   const [accepted, setAccepted] = useState(false)
   const [openSlots, setOpenSlots] = useState<Slot[]>([])
+  const [justOpened, setJustOpened] = useState<Slot | null>(null)
+  const calendarRef = useRef<HTMLElement>(null)
   const fee = price * 0.15
 
-  const addSlot = (slot: Slot) =>
-    setOpenSlots((prev) =>
-      prev.some((s) => s.date === slot.date && s.time === slot.time)
-        ? prev
-        : [...prev, slot],
-    )
+  const sameSlot = (a: Slot, b: Slot) => a.date === b.date && a.time === b.time
 
-  const manageAvailability = () =>
-    showModal('Manage Availability', <AvailabilityFlow onOpen={addSlot} />)
+  const addSlot = (slot: Slot) => {
+    setOpenSlots((prev) =>
+      prev.some((s) => sameSlot(s, slot)) ? prev : [...prev, slot],
+    )
+    setJustOpened(slot)
+  }
+
+  const removeSlot = (slot: Slot) => {
+    setOpenSlots((prev) => prev.filter((s) => !sameSlot(s, slot)))
+    setJustOpened((cur) => (cur && sameSlot(cur, slot) ? null : cur))
+  }
+
+  const focusCalendar = () => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    calendarRef.current?.scrollIntoView({
+      behavior: reduce ? 'auto' : 'smooth',
+      block: 'start',
+    })
+    calendarRef.current?.querySelector<HTMLButtonElement>('.calDay')?.focus()
+  }
 
   return (
     <>
@@ -50,7 +44,7 @@ export default function MentorDashboard() {
               <p className="eyebrow">College athlete mentor dashboard</p>
               <h2>Mentorship business center</h2>
             </div>
-            <button className="button dark" onClick={manageAvailability}>
+            <button className="button dark" onClick={focusCalendar}>
               Manage Availability
             </button>
           </div>
@@ -92,7 +86,7 @@ export default function MentorDashboard() {
                 <strong id="net">{money(price - fee)}</strong>
               </div>
             </article>
-            <article className="panel wide">
+            <article className="panel wide" id="availability" ref={calendarRef}>
               <div className="between">
                 <div>
                   <h3>Availability Calendar</h3>
@@ -100,13 +94,31 @@ export default function MentorDashboard() {
                 </div>
               </div>
               <Scheduler confirmLabel="Open Slot" onConfirm={addSlot} />
-              <div className="chips" style={{ marginTop: 16 }} aria-live="polite">
+              <p className="openStatus" role="status" aria-live="polite">
+                {justOpened
+                  ? `${justOpened.date} at ${justOpened.time} is now open for athletes to book.`
+                  : ''}
+              </p>
+              <div className="slotList" aria-live="polite">
                 {openSlots.length ? (
-                  openSlots.map((s) => (
-                    <span key={`${s.date}-${s.time}`}>
-                      {s.date} | {s.time}
-                    </span>
-                  ))
+                  <>
+                    <p className="slotListLabel">Open slots ({openSlots.length})</p>
+                    <div className="chips">
+                      {openSlots.map((s) => (
+                        <span className="slotChip" key={`${s.date}-${s.time}`}>
+                          {s.date} | {s.time}
+                          <button
+                            type="button"
+                            className="chipRemove"
+                            aria-label={`Remove ${s.date} at ${s.time}`}
+                            onClick={() => removeSlot(s)}
+                          >
+                            &times;
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </>
                 ) : (
                   <small>No open slots yet. Pick a day and time above.</small>
                 )}

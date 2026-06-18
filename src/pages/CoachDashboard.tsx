@@ -48,6 +48,7 @@ export default function CoachDashboard() {
   const [sport, setSport] = useState('all')
   const [position, setPosition] = useState('all')
   const [saved, setSaved] = useState<Athlete[]>([])
+  const [selected, setSelected] = useState<string[]>([])
   const [contacted, setContacted] = useState<string[]>([])
 
   const list = useMemo(
@@ -60,10 +61,33 @@ export default function CoachDashboard() {
     [sport, position],
   )
 
-  const saveAthlete = (a: Athlete) =>
+  const isSaved = (a: Athlete) => saved.some((s) => s.name === a.name)
+
+  const toggleSave = (a: Athlete) =>
     setSaved((prev) =>
-      prev.some((s) => s.name === a.name) ? prev : [...prev, a],
+      prev.some((s) => s.name === a.name)
+        ? prev.filter((s) => s.name !== a.name)
+        : [...prev, a],
     )
+
+  const removeSaved = (name: string) =>
+    setSaved((prev) => prev.filter((s) => s.name !== name))
+
+  const toggleSelect = (name: string) =>
+    setSelected((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name],
+    )
+
+  const saveSelected = () => {
+    setSaved((prev) => {
+      const have = new Set(prev.map((s) => s.name))
+      const additions = athletes.filter(
+        (a) => selected.includes(a.name) && !have.has(a.name),
+      )
+      return [...prev, ...additions]
+    })
+    setSelected([])
+  }
 
   const contactAthlete = (a: Athlete) =>
     showModal(
@@ -114,57 +138,95 @@ export default function CoachDashboard() {
             </div>
           </div>
           <div className="coachLayout">
-            <div id="feed" className="feed">
-              {list.length ? (
-                list.map((a) => (
-                  <article className="athleteCard" key={a.name}>
-                    <div className="athleteContent">
-                      <p className="eyebrow">
-                        {a.sport} | {a.position}
-                      </p>
-                      <h3>{a.name}</h3>
-                      <p>
-                        {a.school} | Class of {a.year} | {a.state} | GPA {a.gpa}
-                      </p>
-                      <strong>{a.stats}</strong>
-                      <div className="cardActions">
-                        <button
-                          className="button primary"
-                          disabled={saved.some((s) => s.name === a.name)}
-                          onClick={() => saveAthlete(a)}
-                        >
-                          {saved.some((s) => s.name === a.name)
-                            ? 'Saved'
-                            : 'Save Athlete'}
-                        </button>
-                        <button
-                          className="button ghost"
-                          disabled={contacted.includes(a.name)}
-                          onClick={() => contactAthlete(a)}
-                        >
-                          {contacted.includes(a.name) ? 'Interest Sent' : 'Contact'}
-                        </button>
-                      </div>
-                    </div>
-                  </article>
-                ))
-              ) : (
-                <div className="panel">
-                  <h3>No athletes match those filters.</h3>
-                  <p>Try another sport or position.</p>
+            <div className="feedColumn">
+              {selected.length > 0 && (
+                <div className="bulkBar" role="status" aria-live="polite">
+                  <span>{selected.length} selected</span>
+                  <div className="bulkActions">
+                    <button className="button primary" onClick={saveSelected}>
+                      Save selected
+                    </button>
+                    <button
+                      className="button ghost"
+                      onClick={() => setSelected([])}
+                    >
+                      Clear
+                    </button>
+                  </div>
                 </div>
               )}
+              <div id="feed" className="feed">
+                {list.length ? (
+                  list.map((a) => (
+                    <article className="athleteCard" key={a.name}>
+                      <label className="cardSelect">
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(a.name)}
+                          onChange={() => toggleSelect(a.name)}
+                          aria-label={`Select ${a.name} for bulk actions`}
+                        />
+                        Select
+                      </label>
+                      <div className="athleteContent">
+                        <p className="eyebrow">
+                          {a.sport} | {a.position}
+                        </p>
+                        <h3>{a.name}</h3>
+                        <p>
+                          {a.school} | Class of {a.year} | {a.state} | GPA{' '}
+                          {a.gpa}
+                        </p>
+                        <strong>{a.stats}</strong>
+                        <div className="cardActions">
+                          <button
+                            className="button primary"
+                            aria-pressed={isSaved(a)}
+                            onClick={() => toggleSave(a)}
+                          >
+                            {isSaved(a) ? 'Saved ✓' : 'Save Athlete'}
+                          </button>
+                          <button
+                            className="button ghost"
+                            disabled={contacted.includes(a.name)}
+                            onClick={() => contactAthlete(a)}
+                          >
+                            {contacted.includes(a.name)
+                              ? 'Interest Sent'
+                              : 'Contact'}
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="panel">
+                    <h3>No athletes match those filters.</h3>
+                    <p>Try another sport or position.</p>
+                  </div>
+                )}
+              </div>
             </div>
             <aside className="panel">
               <h3>Saved Recruits</h3>
               <div id="saved" aria-live="polite">
                 {saved.length ? (
                   saved.map((a) => (
-                    <div className="request" key={a.name}>
-                      <strong>{a.name}</strong>
-                      <span>
-                        {a.sport} | {a.position} | {a.gpa} GPA
-                      </span>
+                    <div className="request savedRow" key={a.name}>
+                      <div>
+                        <strong>{a.name}</strong>
+                        <span>
+                          {a.sport} | {a.position} | {a.gpa} GPA
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="chipRemove"
+                        aria-label={`Remove ${a.name} from saved`}
+                        onClick={() => removeSaved(a.name)}
+                      >
+                        &times;
+                      </button>
                     </div>
                   ))
                 ) : (
