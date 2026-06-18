@@ -4,6 +4,7 @@ import {
   useContext,
   useRef,
   useState,
+  type MouseEvent,
   type ReactNode,
 } from 'react'
 
@@ -25,6 +26,28 @@ export function useModal(): ModalApi {
   return ctx
 }
 
+interface FlowProps {
+  children: (api: { complete: (message: ReactNode) => void }) => ReactNode
+}
+
+export function Flow({ children }: FlowProps) {
+  const { closeModal } = useModal()
+  const [done, setDone] = useState<ReactNode | null>(null)
+
+  if (done !== null) {
+    return (
+      <>
+        <p role="status">{done}</p>
+        <button type="button" className="button primary" onClick={closeModal}>
+          Done
+        </button>
+      </>
+    )
+  }
+
+  return <>{children({ complete: (message) => setDone(message) })}</>
+}
+
 export function ModalProvider({ children }: { children: ReactNode }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [content, setContent] = useState<ModalContent | null>(null)
@@ -38,18 +61,22 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     dialogRef.current?.close()
   }, [])
 
+  const onClick = (e: MouseEvent<HTMLDialogElement>) => {
+    if (e.target === dialogRef.current) closeModal()
+  }
+
   return (
     <ModalContext.Provider value={{ showModal, closeModal }}>
       {children}
-      <dialog id="modal" ref={dialogRef}>
-        <button className="close" onClick={closeModal}>
+      <dialog id="modal" ref={dialogRef} aria-labelledby="modalTitle" onClick={onClick}>
+        <button type="button" className="close" aria-label="Close dialog" onClick={closeModal}>
           &times;
         </button>
         <div id="modalBody">
           {content && (
             <>
               <p className="eyebrow">Prototype flow</p>
-              <h2>{content.title}</h2>
+              <h2 id="modalTitle">{content.title}</h2>
               {content.body}
             </>
           )}

@@ -49,11 +49,11 @@ export default function Meal() {
           <p className="eyebrow">Meal plan tool</p>
           <h2>Generate a sample performance meal plan.</h2>
           <form className="form" id="mealForm" onSubmit={onSubmit}>
-            <input name="sport" defaultValue="Football" placeholder="Sport" />
-            <input name="age" defaultValue="17" placeholder="Age" />
-            <input name="height" defaultValue={`6'1"`} placeholder="Height" />
-            <input name="weight" defaultValue="185 lbs" placeholder="Weight" />
-            <select name="goal" defaultValue="Performance">
+            <input required name="sport" aria-label="Sport" defaultValue="Football" placeholder="Sport" />
+            <input required name="age" aria-label="Age" defaultValue="17" placeholder="Age" />
+            <input required name="height" aria-label="Height" defaultValue={`6'1"`} placeholder="Height" />
+            <input required name="weight" aria-label="Weight" defaultValue="185 lbs" placeholder="Weight" />
+            <select name="goal" aria-label="Goal" defaultValue="Performance">
               <option>Performance</option>
               <option>Muscle gain</option>
               <option>Fat loss</option>
@@ -61,17 +61,18 @@ export default function Meal() {
             </select>
             <input
               name="restrictions"
+              aria-label="Dietary restrictions"
               defaultValue="No pork"
               placeholder="Dietary restrictions"
             />
-            <select name="intensity" defaultValue="High intensity">
+            <select name="intensity" aria-label="Training intensity" defaultValue="High intensity">
               <option>High intensity</option>
               <option>Moderate intensity</option>
               <option>Light intensity</option>
             </select>
             <button className="button primary">Generate Meal Plan</button>
           </form>
-          <div id="mealOut" className="grid output">
+          <div id="mealOut" className="grid output" aria-live="polite">
             {plans.map(([label, text]) => (
               <article className="plan" key={label}>
                 <strong>{label}</strong>

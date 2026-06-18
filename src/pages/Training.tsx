@@ -35,23 +35,27 @@ export default function Training() {
           <p className="eyebrow">Training schedule tool</p>
           <h2>Build a weekly training schedule.</h2>
           <form className="form" id="trainForm" onSubmit={onSubmit}>
-            <input name="sport" defaultValue="Basketball" placeholder="Sport" />
+            <input required name="sport" aria-label="Sport" defaultValue="Basketball" placeholder="Sport" />
             <input
+              required
               name="position"
+              aria-label="Position"
               defaultValue="Point Guard"
               placeholder="Position"
             />
-            <select name="level" defaultValue="Varsity starter">
+            <select name="level" aria-label="Competition level" defaultValue="Varsity starter">
               <option>Varsity starter</option>
               <option>Junior varsity</option>
               <option>Club athlete</option>
             </select>
             <input
+              required
               name="availability"
+              aria-label="Weekly availability"
               defaultValue="5 days"
               placeholder="Weekly availability"
             />
-            <select name="goal" defaultValue="Explosiveness">
+            <select name="goal" aria-label="Training goal" defaultValue="Explosiveness">
               <option>Explosiveness</option>
               <option>Speed</option>
               <option>Strength</option>
@@ -60,7 +64,7 @@ export default function Training() {
             </select>
             <button className="button primary">Generate Schedule</button>
           </form>
-          <div id="trainOut" className="grid output">
+          <div id="trainOut" className="grid output" aria-live="polite">
             {days.map((day, i) => (
               <article className="plan" key={day}>
                 <strong>{day}</strong>

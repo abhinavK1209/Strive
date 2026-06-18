@@ -1,43 +1,45 @@
 import { useMemo, useState } from 'react'
 import Nav from '../components/Nav'
-import { useModal } from '../components/Modal'
+import { Flow, useModal } from '../components/Modal'
 import { athletes, type Athlete } from '../data'
 
-function ContactFlow({ athlete }: { athlete: Athlete }) {
-  const { closeModal } = useModal()
-  const [sent, setSent] = useState(false)
-
-  if (sent) {
-    return (
-      <>
-        <p>
-          Interest sent to {athlete.name}. They can now respond and schedule a
-          call with your program.
-        </p>
-        <button type="button" className="button primary" onClick={closeModal}>
-          Done
-        </button>
-      </>
-    )
-  }
-
+function ContactFlow({
+  athlete,
+  onSent,
+}: {
+  athlete: Athlete
+  onSent: () => void
+}) {
   return (
-    <>
-      <p>
-        Because this is a verified coach account, you can initiate contact after
-        showing recruiting interest.
-      </p>
-      <p>
-        <strong>{athlete.school}</strong>
-        <br />
-        {athlete.stats}
-        <br />
-        Class of {athlete.year} | GPA {athlete.gpa}
-      </p>
-      <button type="button" className="button primary" onClick={() => setSent(true)}>
-        Send Interest
-      </button>
-    </>
+    <Flow>
+      {({ complete }) => (
+        <>
+          <p>
+            Because this is a verified coach account, you can initiate contact
+            after showing recruiting interest.
+          </p>
+          <p>
+            <strong>{athlete.school}</strong>
+            <br />
+            {athlete.stats}
+            <br />
+            Class of {athlete.year} | GPA {athlete.gpa}
+          </p>
+          <button
+            type="button"
+            className="button primary"
+            onClick={() => {
+              onSent()
+              complete(
+                `Interest sent to ${athlete.name}. They can now respond and schedule a call with your program.`,
+              )
+            }}
+          >
+            Send Interest
+          </button>
+        </>
+      )}
+    </Flow>
   )
 }
 
@@ -46,6 +48,7 @@ export default function CoachDashboard() {
   const [sport, setSport] = useState('all')
   const [position, setPosition] = useState('all')
   const [saved, setSaved] = useState<Athlete[]>([])
+  const [contacted, setContacted] = useState<string[]>([])
 
   const list = useMemo(
     () =>
@@ -63,7 +66,17 @@ export default function CoachDashboard() {
     )
 
   const contactAthlete = (a: Athlete) =>
-    showModal(`Contact ${a.name}`, <ContactFlow athlete={a} />)
+    showModal(
+      `Contact ${a.name}`,
+      <ContactFlow
+        athlete={a}
+        onSent={() =>
+          setContacted((prev) =>
+            prev.includes(a.name) ? prev : [...prev, a.name],
+          )
+        }
+      />,
+    )
 
   return (
     <>
@@ -78,6 +91,7 @@ export default function CoachDashboard() {
             <div className="filters">
               <select
                 id="sport"
+                aria-label="Filter by sport"
                 value={sport}
                 onChange={(e) => setSport(e.target.value)}
               >
@@ -88,6 +102,7 @@ export default function CoachDashboard() {
               </select>
               <select
                 id="position"
+                aria-label="Filter by position"
                 value={position}
                 onChange={(e) => setPosition(e.target.value)}
               >
@@ -115,6 +130,7 @@ export default function CoachDashboard() {
                       <div className="cardActions">
                         <button
                           className="button primary"
+                          disabled={saved.some((s) => s.name === a.name)}
                           onClick={() => saveAthlete(a)}
                         >
                           {saved.some((s) => s.name === a.name)
@@ -123,9 +139,10 @@ export default function CoachDashboard() {
                         </button>
                         <button
                           className="button ghost"
+                          disabled={contacted.includes(a.name)}
                           onClick={() => contactAthlete(a)}
                         >
-                          Contact
+                          {contacted.includes(a.name) ? 'Interest Sent' : 'Contact'}
                         </button>
                       </div>
                     </div>
@@ -140,7 +157,7 @@ export default function CoachDashboard() {
             </div>
             <aside className="panel">
               <h3>Saved Recruits</h3>
-              <div id="saved">
+              <div id="saved" aria-live="polite">
                 {saved.length ? (
                   saved.map((a) => (
                     <div className="request" key={a.name}>
