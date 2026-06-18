@@ -2,14 +2,18 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { type ReactNode } from 'react'
 import { AuthProvider, ROLE_HOME, canAccess, useAuth } from './components/Auth'
 import { ModalProvider } from './components/Modal'
-import Login from './pages/Login'
-import Landing from './pages/Landing'
-import AthleteDashboard from './pages/AthleteDashboard'
-import MentorDashboard from './pages/MentorDashboard'
 import CoachDashboard from './pages/CoachDashboard'
 import Profile from './pages/Profile'
-import Meal from './pages/Meal'
-import Training from './pages/Training'
+import {
+  DemoCalendar,
+  DemoChats,
+  DemoLanding,
+  DemoMeal,
+  DemoMentor,
+  DemoSelector,
+  DemoTraining,
+  default as DemoAthleteDashboard,
+} from './pages/DemoExperience'
 
 function RequireRole({ path, children }: { path: string; children: ReactNode }) {
   const { role } = useAuth()
@@ -23,57 +27,17 @@ export default function App() {
     <AuthProvider>
       <ModalProvider>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<DemoLanding />} />
           <Route path="/welcome" element={<Navigate to="/" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/athlete"
-            element={
-              <RequireRole path="/athlete">
-                <AthleteDashboard />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/mentor"
-            element={
-              <RequireRole path="/mentor">
-                <MentorDashboard />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/coach"
-            element={
-              <RequireRole path="/coach">
-                <CoachDashboard />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <RequireRole path="/profile">
-                <Profile />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/meal"
-            element={
-              <RequireRole path="/meal">
-                <Meal />
-              </RequireRole>
-            }
-          />
-          <Route
-            path="/training"
-            element={
-              <RequireRole path="/training">
-                <Training />
-              </RequireRole>
-            }
-          />
+          <Route path="/login" element={<DemoSelector />} />
+          <Route path="/athlete" element={<RequireRole path="/athlete"><DemoAthleteDashboard /></RequireRole>} />
+          <Route path="/athlete/calendar" element={<RequireRole path="/athlete"><DemoCalendar /></RequireRole>} />
+          <Route path="/athlete/mentor-chats" element={<RequireRole path="/athlete"><DemoChats /></RequireRole>} />
+          <Route path="/mentor" element={<RequireRole path="/mentor"><DemoMentor /></RequireRole>} />
+          <Route path="/coach" element={<RequireRole path="/coach"><><div className="demoNotice"><div><strong>Demo Mode</strong><span>Athletes, highlights, and recruiting activity are fictional.</span></div></div><CoachDashboard /></></RequireRole>} />
+          <Route path="/profile" element={<RequireRole path="/profile"><Profile /></RequireRole>} />
+          <Route path="/meal" element={<RequireRole path="/meal"><DemoMeal /></RequireRole>} />
+          <Route path="/training" element={<RequireRole path="/training"><DemoTraining /></RequireRole>} />
         </Routes>
       </ModalProvider>
     </AuthProvider>
