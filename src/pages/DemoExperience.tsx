@@ -16,7 +16,6 @@ import {
   sendDemoMessage,
   updateRequestStatus,
   type AthleteDemoProfile,
-  type MentorThread,
 } from '../lib/demoState'
 
 const demoCss = `
