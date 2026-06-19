@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import Nav from '../components/Nav'
 import Scheduler, { type Slot } from '../components/Scheduler'
 import {
@@ -9,8 +9,15 @@ import {
   ALL_SESSION_TYPES,
   type Mentor,
 } from '../data'
+import {
+  getMentorThreads,
+  getMentorshipRequests,
+  sendMentorMessage,
+  updateRequestStatus,
+  type MentorshipRequest,
+} from '../lib/demoState'
 
-type MentorTab = 'overview' | 'schedule' | 'reviews'
+type MentorTab = 'overview' | 'schedule' | 'requests' | 'chats' | 'reviews'
 
 // ── Star rating display ───────────────────────────────────────────────────────
 
@@ -68,117 +75,54 @@ function ReviewsPanel({ mentorName }: { mentorName: string }) {
 
 // ── Unified schedule panel ────────────────────────────────────────────────────
 
-interface BookingRequest {
-  name: string
-  type: string
-  duration: string
-  day: string
-  time: string
-}
-
-const MOCK_REQUESTS: BookingRequest[] = [
-  { name: 'Jordan Reed', type: 'Game Film Review', duration: '45 min', day: 'Thu', time: '7:00 PM' },
-  { name: 'Darius Fontaine', type: 'Recruitment Prep', duration: '30 min', day: 'Sat', time: '10:00 AM' },
-]
-
-function SchedulePanel() {
+function SchedulePanel({ requests }: { requests: MentorshipRequest[] }) {
   const [openSlots, setOpenSlots] = useState<Slot[]>([])
-  const [requests] = useState<BookingRequest[]>(MOCK_REQUESTS)
-  const [accepted, setAccepted] = useState<string[]>([])
-
+  const accepted = requests.filter((request) => request.status === 'accepted')
   const sameSlot = (a: Slot, b: Slot) => a.date === b.date && a.time === b.time
   const addSlot = (slot: Slot) =>
-    setOpenSlots((prev) => (prev.some((s) => sameSlot(s, slot)) ? prev : [...prev, slot]))
+    setOpenSlots((previous) => previous.some((item) => sameSlot(item, slot)) ? previous : [...previous, slot])
   const removeSlot = (slot: Slot) =>
-    setOpenSlots((prev) => prev.filter((s) => !sameSlot(s, slot)))
+    setOpenSlots((previous) => previous.filter((item) => !sameSlot(item, slot)))
 
-  const acceptRequest = (r: BookingRequest) => {
-    setAccepted((prev) => [...prev, r.name])
-  }
-
-  const confirmedSessions = requests.filter((r) => accepted.includes(r.name))
-  const pendingRequests = requests.filter((r) => !accepted.includes(r.name))
-
-  return (
-    <div className="schedulePanel">
-      {/* Availability calendar */}
-      <div className="scheduleSide">
-        <h4 className="scheduleHeading">Set Availability</h4>
-        <Scheduler confirmLabel="Open Slot" onConfirm={addSlot} />
-        {openSlots.length > 0 && (
-          <div className="slotList" style={{ marginTop: 12 }}>
-            <p className="slotListLabel">Open slots ({openSlots.length})</p>
-            <div className="chips">
-              {openSlots.map((s) => (
-                <span className="slotChip" key={`${s.date}-${s.time}`}>
-                  {s.date} | {s.time}
-                  <button
-                    type="button"
-                    className="chipRemove"
-                    aria-label={`Remove ${s.date} at ${s.time}`}
-                    onClick={() => removeSlot(s)}
-                  >
-                    &times;
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Requests + upcoming merged */}
-      <div className="scheduleSide">
-        <h4 className="scheduleHeading">Booking Requests</h4>
-        {pendingRequests.length === 0 ? (
-          <p style={{ fontSize: '.85rem', color: 'var(--muted)' }}>No pending requests.</p>
-        ) : (
-          <div style={{ display: 'grid', gap: 10 }}>
-            {pendingRequests.map((r) => (
-              <div className="bookingRequest" key={r.name}>
-                <div className="bookingRequestInfo">
-                  <strong>{r.name}</strong>
-                  <span>{r.type} · {r.duration}</span>
-                </div>
-                <button className="button primary mini bookingAccept" onClick={() => acceptRequest(r)}>
-                  Accept
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <h4 className="scheduleHeading" style={{ marginTop: 20 }}>
-          Upcoming Sessions {confirmedSessions.length > 0 && (
-            <span className="savedCount">{confirmedSessions.length}</span>
-          )}
-        </h4>
-        {confirmedSessions.length === 0 ? (
-          <p style={{ fontSize: '.85rem', color: 'var(--muted)' }}>No upcoming sessions yet.</p>
-        ) : (
-          <div style={{ display: 'grid', gap: 10 }}>
-            {confirmedSessions.map((r) => (
-              <div className="sessionConfirmed" key={r.name}>
-                <div className="sessionConfirmedIcon" aria-hidden="true">✓</div>
-                <div>
-                  <strong>{r.name}</strong>
-                  <span>{r.day} at {r.time} · {r.type}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        {/* Always-visible Avery Scott session */}
-        <div className="sessionConfirmed">
-          <div className="sessionConfirmedIcon" aria-hidden="true">✓</div>
-          <div>
-            <strong>Avery Scott</strong>
-            <span>Sun 3:30 PM · Nutrition Advice · 30 min</span>
-          </div>
-        </div>
-      </div>
+  return <div className="schedulePanel">
+    <div className="scheduleSide">
+      <h4 className="scheduleHeading">Set Availability</h4>
+      <Scheduler confirmLabel="Open Slot" onConfirm={addSlot} />
+      {openSlots.length > 0 && <div className="slotList" style={{ marginTop: 12 }}><p className="slotListLabel">Open slots ({openSlots.length})</p><div className="chips">{openSlots.map((slot) => <span className="slotChip" key={`${slot.date}-${slot.time}`}>{slot.date} | {slot.time}<button type="button" className="chipRemove" aria-label={`Remove ${slot.date} at ${slot.time}`} onClick={() => removeSlot(slot)}>&times;</button></span>)}</div></div>}
     </div>
-  )
+    <div className="scheduleSide">
+      <h4 className="scheduleHeading">Upcoming Connected Sessions</h4>
+      {accepted.length === 0 ? <p style={{ fontSize: '.85rem', color: 'var(--muted)' }}>No accepted athlete sessions yet.</p> : <div style={{ display: 'grid', gap: 10 }}>{accepted.map((request) => <div className="sessionConfirmed" key={request.requestId}><div className="sessionConfirmedIcon" aria-hidden="true">✓</div><div><strong>{request.athleteProfile.fullName}</strong><span>{new Date(request.preferredDateTime).toLocaleString()} · {request.sessionType}</span></div></div>)}</div>}
+      <p className="demoChatNote">Only accepted athlete-created requests appear here. Static sample bookings are kept separate from the connected demo flow.</p>
+    </div>
+  </div>
+}
+
+function RequestsPanel({ requests, onChange }: { requests: MentorshipRequest[]; onChange: () => void }) {
+  const change = (requestId: string, status: 'accepted' | 'declined') => {
+    updateRequestStatus(requestId, status)
+    onChange()
+  }
+  return <div className="grid">{requests.length ? requests.map((request) => <article className="panel" key={request.requestId}><div className="between"><div><h3>{request.athleteProfile.fullName}</h3><small>{request.athleteProfile.sport} · {request.athleteProfile.position}</small></div><span className={`demoStatus ${request.status}`}>{request.status}</span></div><p><strong>{request.sessionType}</strong><br/>{new Date(request.preferredDateTime).toLocaleString()}</p><p>"{request.athleteMessage}"</p>{request.status === 'pending' && <div className="demoToolbar"><button className="button primary" onClick={() => change(request.requestId, 'accepted')}>Accept</button><button className="button ghost" onClick={() => change(request.requestId, 'declined')}>Decline</button></div>}</article>) : <article className="panel demoEmpty"><p>No requests for this mentor yet.</p></article>}</div>
+}
+
+function ChatsPanel({ requests }: { requests: MentorshipRequest[] }) {
+  const ids = new Set(requests.map((request) => request.requestId))
+  const readThreads = () => getMentorThreads().filter((thread) => ids.has(thread.requestId))
+  const [threads, setThreads] = useState(readThreads)
+  const [activeId, setActiveId] = useState(threads[0]?.requestId ?? '')
+  const active = threads.find((thread) => thread.requestId === activeId)
+  const send = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!active) return
+    const form = event.currentTarget
+    const text = String(new FormData(form).get('message') || '').trim()
+    if (!text) return
+    sendMentorMessage(active.requestId, text)
+    setThreads(readThreads())
+    form.reset()
+  }
+  return <div className="demoChat mentorDashboardChat"><aside className="panel demoThreads">{threads.length ? threads.map((thread) => <button className={thread.requestId === activeId ? 'demoThread active' : 'demoThread'} key={thread.requestId} onClick={() => setActiveId(thread.requestId)}><span className="demoThreadDot"/><strong>{requests.find((request) => request.requestId === thread.requestId)?.athleteProfile.fullName || 'Demo Athlete'}</strong><small>{thread.status}</small></button>) : <div className="demoEmpty">No chats for this mentor yet.</div>}</aside><section className="panel demoChatPanel">{active ? <><div className="between"><div><h3>{requests.find((request) => request.requestId === active.requestId)?.athleteProfile.fullName || 'Demo Athlete'}</h3><small>Shared browser-local conversation</small></div><span className={`demoStatus ${active.status}`}>{active.status}</span></div><div className="demoMessages">{active.messages.map((message, index) => <div className={`demoMessage ${message.sender === 'mentor' ? 'athlete' : 'mentor'}`} key={`${message.createdAt}-${index}`}><span>{message.text}</span><small>{message.sender === 'mentor' ? 'You' : 'Athlete'}</small></div>)}</div><form className="demoMessageForm" onSubmit={send}><input name="message" required placeholder="Reply as mentor..." /><button className="button primary">Send Reply</button></form></> : <div className="demoEmpty">Select an athlete conversation.</div>}</section></div>
 }
 
 // ── Session types (selectable) ───────────────────────────────────────────────
@@ -294,100 +238,29 @@ function MentorSelector({
 export default function MentorDashboard() {
   const [mentor, setMentor] = useState<Mentor>(mentors[0])
   const [tab, setTab] = useState<MentorTab>('overview')
+  const [requests, setRequests] = useState(getMentorshipRequests)
+  const filteredRequests = requests.filter((request) => request.mentorName === mentor.name)
+  const refreshRequests = () => setRequests(getMentorshipRequests())
 
   const TABS: { id: MentorTab; label: string }[] = [
     { id: 'overview', label: 'Overview' },
     { id: 'schedule', label: 'Schedule' },
+    { id: 'requests', label: 'Requests' },
+    { id: 'chats', label: 'Chats' },
     { id: 'reviews', label: 'Reviews' },
   ]
 
-  return (
-    <>
-      <Nav />
-      <main>
-        <section className="section soft mentorSection">
-          {/* Page header */}
-          <div className="coachHeader">
-            <div>
-              <p className="eyebrow">Mentor dashboard</p>
-              <h2>Mentorship Center</h2>
-            </div>
-            <MentorSelector current={mentor} onChange={setMentor} />
-          </div>
-
-          {/* Tabs */}
-          <div className="coachTabs" role="tablist" aria-label="Mentor sections">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                role="tab"
-                aria-selected={tab === t.id}
-                className={`coachTab ${tab === t.id ? 'active' : ''}`}
-                onClick={() => setTab(t.id)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Overview */}
-          {tab === 'overview' && (
-            <div className="mentorOverview">
-              {/* Profile card */}
-              <article className="panel mentorProfileCard">
-                <div className="profileRow">
-                  <span className="avatar">{mentor.initials}</span>
-                  <div>
-                    <h3 style={{ margin: 0 }}>{mentor.name}</h3>
-                    <p style={{ margin: '3px 0 0' }}>{mentor.role}</p>
-                  </div>
-                </div>
-                <p style={{ marginTop: 14, fontSize: '.9rem', color: 'var(--ink)', lineHeight: 1.6 }}>
-                  {mentor.bio}
-                </p>
-                <div className="mentorStats">
-                  <div className="mentorStat">
-                    <strong>{mentor.sessions}</strong>
-                    <span>Sessions</span>
-                  </div>
-                  <div className="mentorStat">
-                    <strong>{mentor.rating}</strong>
-                    <span>Rating</span>
-                  </div>
-                  <div className="mentorStat">
-                    <strong>{money(mentor.price)}</strong>
-                    <span>/ session</span>
-                  </div>
-                </div>
-              </article>
-
-              {/* Pricing */}
-              <PricingPanel mentor={mentor} />
-
-              {/* Session types */}
-              <article className="panel sessionTypesCard">
-                <h3>Session Types</h3>
-                <SessionTypesPanel mentorName={mentor.name} />
-              </article>
-            </div>
-          )}
-
-          {/* Schedule */}
-          {tab === 'schedule' && (
-            <article className="panel" style={{ padding: 0, overflow: 'hidden' }}>
-              <SchedulePanel />
-            </article>
-          )}
-
-          {/* Reviews */}
-          {tab === 'reviews' && (
-            <article className="panel">
-              <h3>Athlete Reviews — {mentor.name}</h3>
-              <ReviewsPanel mentorName={mentor.name} />
-            </article>
-          )}
-        </section>
-      </main>
-    </>
-  )
+  return <>
+    <Nav />
+    <div className="demoNotice"><div><strong>Demo Mode</strong><span>Requests, conversations, and accepted sessions are shared with the athlete view in this browser.</span></div></div>
+    <main><section className="section soft mentorSection">
+      <div className="coachHeader"><div><p className="eyebrow">Mentor dashboard</p><h2>Mentorship Center</h2></div><MentorSelector current={mentor} onChange={setMentor} /></div>
+      <div className="coachTabs" role="tablist" aria-label="Mentor sections">{TABS.map((item) => <button key={item.id} role="tab" aria-selected={tab === item.id} className={`coachTab ${tab === item.id ? 'active' : ''}`} onClick={() => setTab(item.id)}>{item.label}</button>)}</div>
+      {tab === 'overview' && <div className="mentorOverview"><article className="panel mentorProfileCard"><div className="profileRow"><span className="avatar">{mentor.initials}</span><div><h3 style={{ margin: 0 }}>{mentor.name}</h3><p style={{ margin: '3px 0 0' }}>{mentor.role}</p></div></div><p style={{ marginTop: 14, fontSize: '.9rem', color: 'var(--ink)', lineHeight: 1.6 }}>{mentor.bio}</p><div className="mentorStats"><div className="mentorStat"><strong>{mentor.sessions}</strong><span>Sessions</span></div><div className="mentorStat"><strong>{mentor.rating}</strong><span>Rating</span></div><div className="mentorStat"><strong>{money(mentor.price)}</strong><span>/ session</span></div></div></article><PricingPanel mentor={mentor} /><article className="panel sessionTypesCard"><h3>Session Types</h3><SessionTypesPanel mentorName={mentor.name} /></article></div>}
+      {tab === 'schedule' && <article className="panel" style={{ padding: 0, overflow: 'hidden' }}><SchedulePanel requests={filteredRequests} /></article>}
+      {tab === 'requests' && <RequestsPanel requests={filteredRequests} onChange={refreshRequests} />}
+      {tab === 'chats' && <ChatsPanel key={mentor.name} requests={filteredRequests} />}
+      {tab === 'reviews' && <article className="panel"><h3>Athlete Reviews - {mentor.name}</h3><ReviewsPanel mentorName={mentor.name} /></article>}
+    </section></main>
+  </>
 }

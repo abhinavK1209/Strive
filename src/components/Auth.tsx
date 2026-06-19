@@ -24,6 +24,8 @@ export const ROLE_LABEL: Record<Role, string> = {
 export const ROLE_NAV: Record<Role, { to: string; label: string }[]> = {
   athlete: [
     { to: '/athlete', label: 'Dashboard' },
+    { to: '/athlete/calendar', label: 'Calendar' },
+    { to: '/athlete/mentor-chats', label: 'Mentor Chats' },
     { to: '/meal', label: 'Meal Plan' },
     { to: '/training', label: 'Training' },
   ],
