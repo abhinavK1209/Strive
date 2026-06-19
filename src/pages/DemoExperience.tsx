@@ -18,8 +18,6 @@ import {
   saveMealPlan,
   saveTrainingPlan,
   sendDemoMessage,
-  
-  updateRequestStatus,
   type AthleteDemoProfile,
   type MealPlanDay,
 } from '../lib/demoState'
