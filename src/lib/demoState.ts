@@ -27,12 +27,25 @@ export interface MentorshipRequest {
   createdAt: string
 }
 
+export type DemoEventType = 'training' | 'meal' | 'mentor' | 'coach'
+
 export interface DemoEvent {
   id: string
-  type: 'Training' | 'Mentor' | 'Coach' | 'Reminder'
+  type: DemoEventType
   title: string
-  when: string
+  datetime: string
   description: string
+  source?: 'training-plan' | 'meal-plan' | 'mentorship' | 'demo'
+}
+
+export interface DemoMessage {
+  messageId: string
+  conversationId: string
+  senderRole: 'athlete' | 'mentor'
+  senderName: string
+  recipientName: string
+  body: string
+  createdAt: string
 }
 
 export interface MentorThread {
@@ -43,11 +56,26 @@ export interface MentorThread {
   messages: { sender: 'athlete' | 'mentor'; text: string; createdAt: string }[]
 }
 
+export interface TrainingPlanDay {
+  day: string
+  focus: string
+  detail: string
+  rest: boolean
+}
+
+export interface MealPlanDay {
+  day: string
+  meals: string[]
+  focus: string
+}
+
 export const DEMO_KEYS = {
   profile: 'striveDemoAthleteProfile',
   events: 'striveDemoAthleteEvents',
   requests: 'striveDemoMentorshipRequests',
   messages: 'striveDemoMentorMessages',
+  trainingPlan: 'striveDemoTrainingPlan',
+  mealPlan: 'striveDemoMealPlan',
 } as const
 
 function read<T>(key: string, fallback: T): T {
@@ -63,72 +91,150 @@ function write<T>(key: string, value: T) {
   localStorage.setItem(key, JSON.stringify(value))
 }
 
-export const getAthleteProfile = () => read<AthleteDemoProfile | null>(DEMO_KEYS.profile, null)
-export const getDemoEvents = () => read<DemoEvent[]>(DEMO_KEYS.events, [])
-export const getMentorshipRequests = () => read<MentorshipRequest[]>(DEMO_KEYS.requests, [])
-export const getMentorThreads = () => read<MentorThread[]>(DEMO_KEYS.messages, [])
+const nextDate = (offset: number, hour: number) => {
+  const date = new Date()
+  date.setDate(date.getDate() + offset)
+  date.setHours(hour, 0, 0, 0)
+  return date.toISOString()
+}
 
-const focusFor = (profile: AthleteDemoProfile) => {
-  const value = `${profile.sport} ${profile.position} ${profile.mainGoal}`.toLowerCase()
-  if (value.includes('basketball')) return ['Vertical jump & landing', 'Agility & first step', 'Lower-body power', 'Ball handling & finishing', 'Sprint conditioning', 'Mobility & recovery']
-  if (value.includes('soccer')) return ['Acceleration & change of direction', 'First touch & finishing', 'Single-leg strength', 'Aerobic intervals', 'Position movement', 'Mobility & recovery']
-  if (value.includes('football')) return ['Acceleration mechanics', 'Position footwork', 'Total-body strength', 'Explosive power', 'Game-speed reps', 'Mobility & recovery']
-  if (value.includes('endurance')) return ['Aerobic base', 'Tempo intervals', 'Strength endurance', 'Technique under fatigue', 'Recovery movement', 'Long conditioning']
-  return ['Movement quality', 'Sport skill', 'Total-body strength', 'Speed & agility', 'Competitive reps', 'Mobility & recovery']
+const eventDate = (value: string) => {
+  const date = new Date(value)
+  return Number.isNaN(date.getTime()) ? nextDate(3, 18) : date.toISOString()
+}
+
+const normalizeEvent = (event: DemoEvent | Record<string, unknown>): DemoEvent => {
+  const rawType = String(event.type ?? '').toLowerCase()
+  const type: DemoEventType = rawType === 'training' ? 'training' : rawType === 'meal' || rawType === 'nutrition' || rawType === 'reminder' ? 'meal' : rawType === 'mentor' ? 'mentor' : 'coach'
+  return {
+    id: String(event.id ?? `event-${Date.now()}`),
+    type,
+    title: String(event.title ?? 'Demo event'),
+    datetime: eventDate(String(event.datetime ?? new Date().toISOString())),
+    description: String(event.description ?? ''),
+    source: event.source as DemoEvent['source'],
+  }
+}
+
+export const getAthleteProfile = () => read<AthleteDemoProfile | null>(DEMO_KEYS.profile, null)
+export const getDemoEvents = () => read<Array<DemoEvent | Record<string, unknown>>>(DEMO_KEYS.events, []).map(normalizeEvent)
+export const getMentorshipRequests = () => read<MentorshipRequest[]>(DEMO_KEYS.requests, [])
+export const getDemoMessages = () => read<DemoMessage[]>(DEMO_KEYS.messages, [])
+export const getSavedTrainingPlan = () => read<{ createdAt: string; sessions: TrainingPlanDay[] } | null>(DEMO_KEYS.trainingPlan, null)
+export const getSavedMealPlan = () => read<{ createdAt: string; days: MealPlanDay[] } | null>(DEMO_KEYS.mealPlan, null)
+
+export const getMentorThreads = (): MentorThread[] => {
+  const messages = getDemoMessages()
+  return getMentorshipRequests().map((request) => ({
+    requestId: request.requestId,
+    mentorName: request.mentorName,
+    meeting: request.preferredDateTime,
+    status: request.status,
+    messages: messages
+      .filter((message) => message.conversationId === request.requestId)
+      .map((message) => ({ sender: message.senderRole, text: message.body, createdAt: message.createdAt })),
+  }))
+}
+
+const createMessage = (
+  conversationId: string,
+  senderRole: DemoMessage['senderRole'],
+  senderName: string,
+  recipientName: string,
+  body: string,
+): DemoMessage => ({
+  messageId: `message-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+  conversationId,
+  senderRole,
+  senderName,
+  recipientName,
+  body,
+  createdAt: new Date().toISOString(),
+})
+
+const ensureCoachEvent = (events: DemoEvent[]) => {
+  if (events.some((event) => event.id === 'coach-demo')) return events
+  return [...events, {
+    id: 'coach-demo',
+    type: 'coach' as const,
+    title: 'Sample coach interest review',
+    datetime: nextDate(6, 18),
+    description: 'Review fictional profile activity and prepare follow-up questions.',
+    source: 'demo' as const,
+  }]
 }
 
 export function saveAthleteProfile(profile: AthleteDemoProfile) {
   write(DEMO_KEYS.profile, profile)
-  const keep = getDemoEvents().filter((event) => event.type !== 'Training')
-  const days = Math.max(2, Math.min(6, Number(profile.trainingDays) || 3))
-  const focus = focusFor(profile)
-  const training: DemoEvent[] = Array.from({ length: days }, (_, index) => ({
-    id: `training-${index}`,
-    type: 'Training',
-    title: focus[index],
-    when: `Day ${index + 1} · ${profile.preferredTime}`,
-    description: `${profile.skillLevel} progression for ${profile.position}.`,
+  const events = ensureCoachEvent(getDemoEvents())
+  write(DEMO_KEYS.events, events)
+}
+
+export function saveTrainingPlan(profile: AthleteDemoProfile, sessions: TrainingPlanDay[]) {
+  write(DEMO_KEYS.trainingPlan, { createdAt: new Date().toISOString(), sessions })
+  const keep = getDemoEvents().filter((event) => event.type !== 'training')
+  const hour = /morning/i.test(profile.preferredTime) ? 7 : /evening/i.test(profile.preferredTime) ? 19 : 16
+  const training = sessions.filter((session) => !session.rest).map((session, index): DemoEvent => ({
+    id: `training-plan-${index}`,
+    type: 'training',
+    title: session.focus,
+    datetime: nextDate(index + 1, hour),
+    description: `${session.day} · ${session.detail}`,
+    source: 'training-plan',
   }))
-  if (!keep.some((event) => event.id === 'coach-demo')) {
-    keep.push({ id: 'coach-demo', type: 'Coach', title: 'Sample coach interest review', when: 'Friday · 6:00 PM', description: 'Review mock profile activity and prepare follow-up questions.' })
-  }
-  write(DEMO_KEYS.events, [...training, ...keep])
+  write(DEMO_KEYS.events, ensureCoachEvent([...keep, ...training]))
+}
+
+export function saveMealPlan(days: MealPlanDay[]) {
+  write(DEMO_KEYS.mealPlan, { createdAt: new Date().toISOString(), days })
+  const keep = getDemoEvents().filter((event) => event.type !== 'meal')
+  const reminders = days.map((day, index): DemoEvent => ({
+    id: `meal-plan-${index}`,
+    type: 'meal',
+    title: `${day.day} nutrition check-in`,
+    datetime: nextDate(index + 1, 12),
+    description: day.focus,
+    source: 'meal-plan',
+  }))
+  write(DEMO_KEYS.events, ensureCoachEvent([...keep, ...reminders]))
 }
 
 export function createMentorshipRequest(input: Omit<MentorshipRequest, 'requestId' | 'createdAt' | 'status'>) {
   const request: MentorshipRequest = { ...input, requestId: `request-${Date.now()}`, createdAt: new Date().toISOString(), status: 'pending' }
   write(DEMO_KEYS.requests, [request, ...getMentorshipRequests()])
-  write(DEMO_KEYS.events, [...getDemoEvents(), { id: request.requestId, type: 'Mentor', title: `${request.sessionType} with ${request.mentorName}`, when: request.preferredDateTime, description: 'Pending demo mentorship request.' }])
-  const firstName = request.athleteProfile.fullName.split(' ')[0] || 'Athlete'
-  const thread: MentorThread = {
-    requestId: request.requestId,
-    mentorName: request.mentorName,
-    meeting: request.preferredDateTime,
-    status: 'pending',
-    messages: [
-      { sender: 'athlete', text: request.athleteMessage, createdAt: request.createdAt },
-      { sender: 'mentor', text: `Thanks, ${firstName}! I received your demo request and will review your goals before our session.`, createdAt: new Date().toISOString() },
-    ],
-  }
-  write(DEMO_KEYS.messages, [thread, ...getMentorThreads()])
+  const events = getDemoEvents()
+  write(DEMO_KEYS.events, [...events, {
+    id: request.requestId,
+    type: 'mentor',
+    title: `${request.sessionType} with ${request.mentorName}`,
+    datetime: eventDate(request.preferredDateTime),
+    description: 'Pending demo mentorship request.',
+    source: 'mentorship',
+  }])
+  const firstMessage = createMessage(request.requestId, 'athlete', request.athleteProfile.fullName || 'Demo Athlete', request.mentorName, request.athleteMessage)
+  write(DEMO_KEYS.messages, [...getDemoMessages(), firstMessage])
   return request
 }
 
 export function updateRequestStatus(requestId: string, status: MentorshipRequest['status']) {
   const requests = getMentorshipRequests().map((request) => request.requestId === requestId ? { ...request, status } : request)
   write(DEMO_KEYS.requests, requests)
-  const reply = status === 'accepted' ? 'Your demo session is confirmed. Bring one highlight clip and your top recruiting question.' : 'That time does not work in this demo. Please request another session.'
-  const threads = getMentorThreads().map((thread) => thread.requestId === requestId ? { ...thread, status, messages: [...thread.messages, { sender: 'mentor' as const, text: reply, createdAt: new Date().toISOString() }] } : thread)
-  write(DEMO_KEYS.messages, threads)
+  const events = getDemoEvents().map((event) => event.id === requestId ? { ...event, description: status === 'accepted' ? 'Confirmed demo mentor meeting.' : 'Demo mentorship request declined.' } : event)
+  write(DEMO_KEYS.events, events)
 }
 
 export function sendDemoMessage(requestId: string, text: string) {
-  const now = new Date().toISOString()
-  const threads = getMentorThreads().map((thread) => thread.requestId === requestId ? {
-    ...thread,
-    messages: [...thread.messages, { sender: 'athlete' as const, text, createdAt: now }, { sender: 'mentor' as const, text: 'Great question. I would add that to our demo session agenda and share practical next steps.', createdAt: now }],
-  } : thread)
-  write(DEMO_KEYS.messages, threads)
+  const request = getMentorshipRequests().find((item) => item.requestId === requestId)
+  if (!request) return
+  const message = createMessage(requestId, 'athlete', request.athleteProfile.fullName || 'Demo Athlete', request.mentorName, text)
+  write(DEMO_KEYS.messages, [...getDemoMessages(), message])
+}
+
+export function sendMentorMessage(requestId: string, text: string) {
+  const request = getMentorshipRequests().find((item) => item.requestId === requestId)
+  if (!request) return
+  const message = createMessage(requestId, 'mentor', request.mentorName, request.athleteProfile.fullName || 'Demo Athlete', text)
+  write(DEMO_KEYS.messages, [...getDemoMessages(), message])
 }
 
 export function resetAthleteDemo() {
